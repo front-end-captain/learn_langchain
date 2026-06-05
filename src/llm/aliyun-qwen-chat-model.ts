@@ -169,7 +169,7 @@ export class AliyunQwenChatModel extends BaseChatModel<AliyunQwenChatModelCallOp
       temperature: this.temperature,
       stop: options?.stop,
       tools: options?.tools,
-      tool_choice: options?.tool_choice,
+      tool_choice: normalizeToolChoice(options?.tool_choice),
     };
   }
 
@@ -286,8 +286,9 @@ export class AliyunQwenChatModel extends BaseChatModel<AliyunQwenChatModelCallOp
     if (options.tools && options.tools.length > 0) {
       payload["tools"] = options.tools;
     }
-    if (options.tool_choice !== undefined) {
-      payload["tool_choice"] = options.tool_choice;
+    const toolChoice = normalizeToolChoice(options.tool_choice);
+    if (toolChoice !== undefined) {
+      payload["tool_choice"] = toolChoice;
     }
 
     return this.postWithRetry(payload);
@@ -664,6 +665,16 @@ function isRecord(value: unknown): value is JsonObject {
 
 function includesBase64Image(value: string): boolean {
   return value.includes("data:image/") && value.includes(";base64,");
+}
+
+function normalizeToolChoice(
+  toolChoice: string | JsonObject | undefined,
+): string | JsonObject | undefined {
+  if (toolChoice === "any") {
+    return "required";
+  }
+
+  return toolChoice;
 }
 
 function parseRetryCount(value: string | undefined): number {
