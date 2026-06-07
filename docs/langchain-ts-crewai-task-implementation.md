@@ -1,7 +1,5 @@
-# 参考 `src/course_01/lesson1.ts` 的 CrewAI Task 迁移方案
+# CrewAI Task 迁移方案
 
-> 本方案重新基于当前项目已有代码风格设计，不再采用通用的 `ChatPromptTemplate + AgentExecutor + ChatOpenAI` 方案。
->
 > 现有项目已经在 `src/course_01/lesson1.ts` 中确定了核心范式：
 >
 > ```ts
@@ -14,7 +12,7 @@
 
 ---
 
-## 1. 重新设计的核心结论
+## 1. 设计的核心结论
 
 原 CrewAI 示例 `m2l4_task.py` 的核心不是“多 Agent 编排”，而是：
 
@@ -26,7 +24,7 @@
 CrewAI 用 output_pydantic 校验最终结果
 ```
 
-在当前 TypeScript 项目中，最贴近 `lesson1.ts` 风格的实现应该是：
+在当前 LangChain + TypeScript 项目中，实现应该是：
 
 ```text
 Zod Schema 定义输入/输出契约
@@ -38,25 +36,9 @@ agent.invoke({ messages }) 或 agent.stream({ messages })
 从 result.structuredResponse 读取结构化结果
 ```
 
-也就是说，lesson2 不应该优先设计成：
-
-```text
-ChatPromptTemplate + model.withStructuredOutput + AgentExecutor
-```
-
-而应该优先设计成：
-
-```text
-createAgent + responseFormat
-```
-
-因为这和 `lesson1.ts` 的教学主线一致。
-
 ---
 
-## 2. 为什么要按 `lesson1.ts` 重设方案？
-
-`lesson1.ts` 已经体现了当前课程项目的几个关键约定：
+## 2. 关键事实
 
 ### 2.1 使用 `createAgent` 作为 Agent 抽象
 
@@ -70,11 +52,9 @@ const contentStrategist = createAgent({
 });
 ```
 
-这说明当前课程不是从底层 Runnable 开始讲，而是把 LangChain 的 `createAgent` 作为 CrewAI `Agent` 的主要映射。
+把 LangChain 的 `createAgent` 作为 CrewAI `Agent` 的主要映射。
 
 ### 2.2 使用项目自定义的 `AliyunQwenChatModel`
-
-`lesson1.ts` 中：
 
 ```ts
 const llm = new AliyunQwenChatModel({
@@ -83,8 +63,6 @@ const llm = new AliyunQwenChatModel({
   apiBase: process.env["QWEN_API_BASE"] ?? "",
 });
 ```
-
-因此新方案不应再建议新增 `src/llm/qwen.ts` 并使用 `ChatOpenAI` 封装 Qwen。
 
 当前项目已经有更贴合自身需求的模型封装：
 
@@ -101,11 +79,7 @@ src/llm/aliyun-qwen-chat-model.ts
 - 空内容重试；
 - 超时和重试。
 
-所以 lesson2 应复用它，而不是绕开它。
-
 ### 2.3 使用已有 `saveIntermediateProductTool`
-
-`lesson1.ts` 中：
 
 ```ts
 tools: [saveIntermediateProductTool]
@@ -123,7 +97,7 @@ src/tools/intermediate-tool.ts
 Save_Intermediate_Product_Tool
 ```
 
-因此 prompt 中必须继续使用这个精确名称，而不是改成 `save_intermediate_result`。
+因此 prompt 中必须继续使用这个精确名称
 
 ---
 
@@ -146,78 +120,9 @@ Save_Intermediate_Product_Tool
 
 ---
 
-## 4. 推荐的 lesson2 文件定位
-
-建议新增或重写：
-
-```text
-src/course_01/lesson2.ts
-```
-
-它对应原 Python 文件：
-
-```text
-crewai_mas_demo/m2l4/m2l4_task.py
-```
-
-但在教学定位上，应承接 `lesson1.ts`：
-
-```text
-lesson1.ts：如何定义 Agent 的 role / goal / backstory / tools
-lesson2.ts：如何定义 Task 的输入输出契约，并让 Agent 输出结构化结果
-```
-
-也就是说，lesson2 的主题应是：
-
-```text
-从“自然语言 Brief”升级到“结构化 Task 输出契约”
-```
-
----
-
-## 5. 推荐目录结构
-
-基于当前项目结构，推荐保持轻量，不要过早拆太多文件。
-
-### 5.1 课程教学版结构
-
-```text
-src/
-  course_01/
-    lesson1.ts                    # 已存在：Agent role / goal / backstory
-    lesson2.ts                    # 新增：Task 契约与结构化输出
-
-  llm/
-    aliyun-qwen-chat-model.ts     # 已存在：Qwen ChatModel
-
-  tools/
-    intermediate-tool.ts          # 已存在：中间结果工具
-```
-
-### 5.2 如果后续复用，再拆 schema
-
-当多个 lesson 都要复用这些结构时，再新增：
-
-```text
-src/schemas/
-  content-strategy.ts
-```
-
-但就当前课程连贯性而言，建议 lesson2 先把 schema 写在同一个文件里。
-
-原因：
-
-1. 学习者能在一个文件里看到完整闭环；
-2. 更像原 `m2l4_task.py` 的教学脚本；
-3. 避免一开始就在目录结构上制造认知负担。
-
----
-
-## 6. lesson2 的代码设计
+## 4. lesson2 的代码设计
 
 ### 6.1 顶部教学注释
-
-建议 lesson2 开头延续 lesson1 的风格，用注释先解释概念。
 
 ```ts
 /**
@@ -237,7 +142,7 @@ src/schemas/
 
 ---
 
-## 7. Zod Schema 设计
+## 5. Zod Schema 设计
 
 原 Python 使用 Pydantic：
 
@@ -264,7 +169,7 @@ seo_keywords
 2. 更容易理解 `output_pydantic` 到 `responseFormat` 的迁移；
 3. 结构化输出结果可以直接对照 Python 字段。
 
-### 7.1 推荐 Schema
+### 5.1 推荐 Schema
 
 ```ts
 import * as z from "zod";
@@ -332,11 +237,11 @@ type ContentStrategyBrief = z.infer<typeof ContentStrategyBriefSchema>;
 
 ---
 
-## 8. Agent systemPrompt 设计
+## 6. Agent systemPrompt 设计
 
 lesson1 已经有一个成熟的 `contentStrategistSystemPrompt`，lesson2 可以在其基础上修改，重点增加“Task 契约意识”。
 
-### 8.1 推荐 systemPrompt
+### 6.1 推荐 systemPrompt
 
 ```ts
 const contentStrategistSystemPrompt = `
@@ -376,12 +281,10 @@ const contentStrategistSystemPrompt = `
 注意：
 
 - 工具名称必须写 `Save_Intermediate_Product_Tool`；
-- 不要写 `save_intermediate_result`，否则和项目已有工具不一致；
-- 保留 lesson1 的教学语言和概念体系。
 
 ---
 
-## 9. Task 输入设计
+## 7. Task 输入设计
 
 CrewAI 原写法是：
 
@@ -421,19 +324,7 @@ Task(description="""... {visual_report} ...""")
 
 ---
 
-## 10. createAgent 结构化输出设计
-
-`lesson1.ts` 使用：
-
-```ts
-const contentStrategist = createAgent({
-  model: llm,
-  tools: [saveIntermediateProductTool],
-  systemPrompt: contentStrategistSystemPrompt,
-});
-```
-
-lesson2 建议升级为：
+## 8. createAgent 结构化输出设计
 
 ```ts
 const contentStrategist = createAgent({
@@ -467,42 +358,8 @@ const strategy = result.structuredResponse;
 
 ---
 
-## 11. 是否还需要两阶段架构？
 
-在当前项目和课程阶段，**不建议 lesson2 一开始使用两阶段架构**。
-
-之前的两阶段方案是：
-
-```text
-Agent 先生成草稿
-        ↓
-另一个 structured chain 再整理结构化输出
-```
-
-它适合生产场景，但不适合当前 lesson2 的教学主线。
-
-原因：
-
-1. `lesson1.ts` 已经选择了 `createAgent`；
-2. LangChain 当前 `createAgent` 原生支持 `responseFormat`；
-3. CrewAI 示例本身就是在讲 `Task.output_pydantic`，不是在讲复杂 pipeline；
-4. 两阶段会让学习者误以为结构化输出必须拆成两个模型调用；
-5. 当前更重要的是建立映射：
-
-```text
-CrewAI output_pydantic  ≈  LangChain createAgent responseFormat
-```
-
-因此建议：
-
-```text
-lesson2：单 Agent + responseFormat
-后续 lesson：如果遇到模型结构化不稳定，再引入两阶段修复方案
-```
-
----
-
-## 12. 完整 lesson2 示例设计
+## 9. 完整 lesson2 示例设计
 
 下面是推荐的 `src/course_01/lesson2.ts` 结构。
 
@@ -712,7 +569,7 @@ console.log("建议标题:", strategy.suggested_title);
 
 ---
 
-## 13. 如果想保留 lesson1 的 streaming 教学风格
+## 10. 如果想保留 lesson1 的 streaming 输出
 
 `lesson1.ts` 使用的是：
 
@@ -779,123 +636,3 @@ for await (const chunk of stream) {
 - `invoke` 获取的是最终结果；
 - 如果目标是稳定拿结构化数据，优先用 `invoke`。
 
----
-
-## 14. 依赖调整
-
-当前 `package.json` 已有：
-
-```json
-{
-  "dependencies": {
-    "@langchain/core": "^1.1.48",
-    "@langchain/openai": "^1.4.7",
-    "langchain": "^1.4.4"
-  }
-}
-```
-
-但 `src/tools/intermediate-tool.ts` 已经直接使用：
-
-```ts
-import * as z from "zod";
-```
-
-lesson2 也会直接使用 `zod`。
-
-因此建议把 `zod` 显式加入直接依赖：
-
-```bash
-bun add zod
-```
-
-这不是因为项目当前一定不能运行，而是因为：
-
-```text
-只要源码直接 import 某个包，就应该把它列为直接依赖，而不是依赖 transitive dependency。
-```
-
----
-
-## 15. 运行方式
-
-按照项目约定，使用 Bun：
-
-```bash
-bun src/course_01/lesson2.ts
-```
-
-如果要类型检查：
-
-```bash
-bun run check
-```
-
----
-
-## 16. 验收标准
-
-lesson2 完成后，应满足：
-
-```text
-[ ] 继续使用 createAgent，而不是引入另一套 AgentExecutor 写法
-[ ] 继续使用 AliyunQwenChatModel，而不是新建 ChatOpenAI/Qwen wrapper
-[ ] 继续使用 saveIntermediateProductTool
-[ ] Prompt 中工具名写的是 Save_Intermediate_Product_Tool
-[ ] 使用 Zod 定义 ImageAnalysis / VisualAnalysisReport / ContentStrategyBrief
-[ ] 使用 responseFormat: ContentStrategyBriefSchema 对应 CrewAI output_pydantic
-[ ] 使用 agent.invoke({ messages }) 对应 CrewAI crew.kickoff(inputs)
-[ ] 从 result.structuredResponse 读取最终结构化结果
-[ ] 保留 lesson1 的教学风格和注释风格
-[ ] 可以通过 strategy.suggested_title 等字段类型安全访问结果
-```
-
----
-
-## 17. 新方案和旧方案的关键差异
-
-| 维度 | 旧文档方案 | 参考 lesson1 后的新方案 |
-|---|---|---|
-| Agent 构造 | `createToolCallingAgent` / `AgentExecutor` | `createAgent` |
-| 模型接入 | `ChatOpenAI` + DashScope compatible API | `AliyunQwenChatModel` |
-| 工具 | 新建 `intermediateTool` | 复用 `saveIntermediateProductTool` |
-| 工具名称 | `save_intermediate_result` | `Save_Intermediate_Product_Tool` |
-| 结构化输出 | `model.withStructuredOutput(...)` | `createAgent({ responseFormat })` |
-| 文件组织 | 拆成 schemas / agents / chains | lesson2 单文件优先 |
-| 教学主线 | 更偏生产 pipeline | 更贴合 lesson1 的课程递进 |
-
----
-
-## 18. 一句话总结
-
-参考 `src/course_01/lesson1.ts` 后，lesson2 应该被设计成：
-
-```text
-用 Zod 定义 Task 输入输出契约
-        +
-用 createAgent 复用 lesson1 的 Agent 风格
-        +
-用 responseFormat 映射 CrewAI 的 output_pydantic
-        +
-用 result.structuredResponse 读取结构化结果
-```
-
-这比“两阶段 Chain”更适合作为当前课程的第二课，因为它能最直接地回答：
-
-```text
-CrewAI 的 Task(output_pydantic=...) 在 LangChain TypeScript 中应该怎么表达？
-```
-
-答案就是：
-
-```ts
-const agent = createAgent({
-  model: llm,
-  tools: [saveIntermediateProductTool],
-  systemPrompt,
-  responseFormat: ContentStrategyBriefSchema,
-});
-
-const result = await agent.invoke({ messages });
-console.log(result.structuredResponse);
-```
