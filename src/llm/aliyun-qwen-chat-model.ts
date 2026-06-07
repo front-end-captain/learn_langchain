@@ -671,7 +671,7 @@ function normalizeToolChoice(
   toolChoice: string | JsonObject | undefined,
 ): string | JsonObject | undefined {
   if (toolChoice === "any") {
-    return "required";
+    return "auto";
   }
 
   return toolChoice;
