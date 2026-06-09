@@ -1,0 +1,235 @@
+
+messages [
+  HumanMessage {
+  "id": "c0fca1ea-9f98-4862-87a7-f80bd76fbe57",
+  "content": "今天北京的天气怎么样?",
+  "additional_kwargs": {},
+  "response_metadata": {}
+}
+]
+HUMAN: 
+今天北京的天气怎么样?
+
+
+messages [
+  HumanMessage {
+  "id": "c0fca1ea-9f98-4862-87a7-f80bd76fbe57",
+  "content": "今天北京的天气怎么样?",
+  "additional_kwargs": {},
+  "response_metadata": {}
+}, AIMessage {
+  "id": "93dbfed7-94ec-450a-bf63-9884597f3c69",
+  "content": "",
+  "name": "model",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 286,
+      "completionTokens": 75,
+      "totalTokens": 361
+    },
+    "finish_reason": "tool_calls",
+    "id": "chatcmpl-ebb50de2-fdcd-9020-8716-2080ec15cf9e",
+    "usage": {
+      "total_tokens": 361,
+      "completion_tokens": 75,
+      "prompt_tokens": 286,
+      "completion_tokens_details": {
+        "reasoning_tokens": 45,
+        "text_tokens": 75
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 286
+      }
+    },
+    "raw_tool_calls": [
+      {
+        "index": 0,
+        "id": "call_3f4dc03a3991474980964078",
+        "type": "function",
+        "function": "[Object]"
+      }
+    ]
+  },
+  "tool_calls": [
+    {
+      "id": "call_3f4dc03a3991474980964078",
+      "name": "get_weather",
+      "args": {
+        "city": "北京"
+      },
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": []
+}
+]
+AI: 
+
+
+ToolCall:  get_weather 
+
+
+messages [
+  HumanMessage {
+  "id": "c0fca1ea-9f98-4862-87a7-f80bd76fbe57",
+  "content": "今天北京的天气怎么样?",
+  "additional_kwargs": {},
+  "response_metadata": {}
+}, AIMessage {
+  "id": "93dbfed7-94ec-450a-bf63-9884597f3c69",
+  "content": "",
+  "name": "model",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 286,
+      "completionTokens": 75,
+      "totalTokens": 361
+    },
+    "finish_reason": "tool_calls",
+    "id": "chatcmpl-ebb50de2-fdcd-9020-8716-2080ec15cf9e",
+    "usage": {
+      "total_tokens": 361,
+      "completion_tokens": 75,
+      "prompt_tokens": 286,
+      "completion_tokens_details": {
+        "reasoning_tokens": 45,
+        "text_tokens": 75
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 286
+      }
+    },
+    "raw_tool_calls": [
+      {
+        "index": 0,
+        "id": "call_3f4dc03a3991474980964078",
+        "type": "function",
+        "function": "[Object]"
+      }
+    ]
+  },
+  "tool_calls": [
+    {
+      "id": "call_3f4dc03a3991474980964078",
+      "name": "get_weather",
+      "args": {
+        "city": "北京"
+      },
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": []
+}, ToolMessage {
+  "id": "8d2ef5b0-7ce6-4a1c-9ffa-eb22a6b2321d",
+  "content": "It's always sunny in 北京!",
+  "name": "get_weather",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_call_id": "call_3f4dc03a3991474980964078"
+}
+]
+TOOL: 
+It's always sunny in 北京!
+
+
+messages [
+  HumanMessage {
+  "id": "c0fca1ea-9f98-4862-87a7-f80bd76fbe57",
+  "content": "今天北京的天气怎么样?",
+  "additional_kwargs": {},
+  "response_metadata": {}
+}, AIMessage {
+  "id": "93dbfed7-94ec-450a-bf63-9884597f3c69",
+  "content": "",
+  "name": "model",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 286,
+      "completionTokens": 75,
+      "totalTokens": 361
+    },
+    "finish_reason": "tool_calls",
+    "id": "chatcmpl-ebb50de2-fdcd-9020-8716-2080ec15cf9e",
+    "usage": {
+      "total_tokens": 361,
+      "completion_tokens": 75,
+      "prompt_tokens": 286,
+      "completion_tokens_details": {
+        "reasoning_tokens": 45,
+        "text_tokens": 75
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 286
+      }
+    },
+    "raw_tool_calls": [
+      {
+        "index": 0,
+        "id": "call_3f4dc03a3991474980964078",
+        "type": "function",
+        "function": "[Object]"
+      }
+    ]
+  },
+  "tool_calls": [
+    {
+      "id": "call_3f4dc03a3991474980964078",
+      "name": "get_weather",
+      "args": {
+        "city": "北京"
+      },
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": []
+}, ToolMessage {
+  "id": "8d2ef5b0-7ce6-4a1c-9ffa-eb22a6b2321d",
+  "content": "It's always sunny in 北京!",
+  "name": "get_weather",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_call_id": "call_3f4dc03a3991474980964078"
+}, AIMessage {
+  "id": "f599593a-0998-4389-a95e-a1cae449e750",
+  "content": "今天北京的天气是晴天！☀️ 天气晴朗，适合外出活动。",
+  "name": "model",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 337,
+      "completionTokens": 66,
+      "totalTokens": 403
+    },
+    "finish_reason": "stop",
+    "id": "chatcmpl-c62180ff-4639-9c30-a35e-c89f6cff2967",
+    "usage": {
+      "total_tokens": 403,
+      "completion_tokens": 66,
+      "prompt_tokens": 337,
+      "completion_tokens_details": {
+        "reasoning_tokens": 44,
+        "text_tokens": 66
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 337
+      }
+    }
+  },
+  "tool_calls": [],
+  "invalid_tool_calls": []
+}
+]
+AI: 
+今天北京的天气是晴天！☀️ 天气晴朗，适合外出活动。
+

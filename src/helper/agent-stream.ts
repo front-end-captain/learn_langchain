@@ -1,9 +1,17 @@
 import type { ToolCall } from "@langchain/core/messages/tool";
+import type { MessageType } from "@langchain/core/messages";
+import {
+  BaseMessage,
+  HumanMessage,
+  AIMessage,
+  SystemMessage,
+  ToolMessage,
+} from "langchain";
 
 export type AgentStreamEvent<TStructuredResponse = unknown> =
   | {
       type: "agent_update";
-      messageType: string | undefined;
+      messageType: MessageType | undefined;
       content: unknown;
     }
   | {
@@ -20,13 +28,27 @@ export type AgentStreamEventHandler<TStructuredResponse = unknown> = (
 ) => void;
 
 export function createAgentUpdateEvent(
-  message: unknown,
+  message?: BaseMessage,
 ): AgentStreamEvent<never> {
-  return {
+  let agentStreamEvent: AgentStreamEvent = {
     type: "agent_update",
-    messageType: getMessageType(message),
-    content: maskBase64ImageContent(getMessageContent(message)),
+    messageType: "UNKNOWN",
+    content: "",
   };
+  if (
+    message instanceof HumanMessage ||
+    message instanceof AIMessage ||
+    message instanceof SystemMessage ||
+    message instanceof ToolMessage
+  ) {
+    agentStreamEvent = {
+      type: "agent_update",
+      messageType: message.getType(),
+      content: maskBase64ImageContent(message.content),
+    };
+  }
+
+  return agentStreamEvent;
 }
 
 export function createToolCallsEvent(
@@ -91,13 +113,11 @@ export function formatAgentStreamEvent(event: AgentStreamEvent) {
   return "结构化输出已生成";
 }
 
-export function getToolCalls(message: unknown): ToolCall[] {
-  if (!message || typeof message !== "object" || !("tool_calls" in message)) {
-    return [];
+export function getToolCalls(message?: BaseMessage): ToolCall[] {
+  if (message instanceof AIMessage) {
+    return message.tool_calls || [];
   }
-
-  const toolCalls = (message as { tool_calls?: unknown }).tool_calls;
-  return Array.isArray(toolCalls) ? (toolCalls as ToolCall[]) : [];
+  return [];
 }
 
 export function maskBase64ImageContent(content: unknown) {
@@ -109,25 +129,4 @@ export function maskBase64ImageContent(content: unknown) {
     /data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/g,
     "[图片 Base64 内容已省略]",
   );
-}
-
-function getMessageType(message: unknown): string | undefined {
-  if (
-    message &&
-    typeof message === "object" &&
-    "getType" in message &&
-    typeof (message as { getType?: unknown }).getType === "function"
-  ) {
-    return (message as { getType: () => string }).getType();
-  }
-
-  return undefined;
-}
-
-function getMessageContent(message: unknown) {
-  if (!message || typeof message !== "object" || !("content" in message)) {
-    return undefined;
-  }
-
-  return (message as { content?: unknown }).content;
 }

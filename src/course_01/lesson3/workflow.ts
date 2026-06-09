@@ -1,4 +1,4 @@
-import { createAgent } from "langchain";
+import { createAgent, ReactAgent } from "langchain";
 import * as z from "zod";
 import type { ToolCall } from "@langchain/core/messages/tool";
 import {
@@ -30,7 +30,9 @@ export const ImageAnalysisSchema = z.object({
 export const VisualAnalysisReportSchema = z.object({
   userRawIntent: z.string().describe("用户的原始文字诉求摘要。"),
   analyzedImages: z.array(ImageAnalysisSchema),
-  overallVisualSummary: z.string().describe("综合所有图片得出的整体视觉基调总结。"),
+  overallVisualSummary: z
+    .string()
+    .describe("综合所有图片得出的整体视觉基调总结。"),
 });
 
 export const ContentStrategyBriefSchema = z.object({
@@ -61,7 +63,9 @@ export const SEOOptimizedNoteReportSchema = z.object({
 export type VisualAnalysisReport = z.infer<typeof VisualAnalysisReportSchema>;
 export type ContentStrategyBrief = z.infer<typeof ContentStrategyBriefSchema>;
 export type CopywritingOutput = z.infer<typeof CopywritingOutputSchema>;
-export type SEOOptimizedNoteReport = z.infer<typeof SEOOptimizedNoteReportSchema>;
+export type SEOOptimizedNoteReport = z.infer<
+  typeof SEOOptimizedNoteReportSchema
+>;
 
 export type Lesson3WorkflowStep =
   | "content_strategy"
@@ -116,21 +120,20 @@ export type Lesson3WorkflowEvent =
 
 export type Lesson3WorkflowEventHandler = (event: Lesson3WorkflowEvent) => void;
 
-type StreamableAgent = {
-  stream: (
-    input: { messages: Array<{ role: "user"; content: string }> },
-    options: { streamMode: "values" },
-  ) => Promise<AsyncIterable<{ messages: unknown[]; structuredResponse?: unknown }>>;
-};
-
 export const defaultVisualReport: VisualAnalysisReport = {
   userRawIntent: "想卖这个墨绿色马克杯，主打独居女生市场，强调氛围感和情绪价值",
   analyzedImages: [
     {
       fileName: "cup_001.jpg",
-      subjectDescription: "一只带有金色裂纹纹理的墨绿色陶瓷马克杯，放置在木质书桌上",
+      subjectDescription:
+        "一只带有金色裂纹纹理的墨绿色陶瓷马克杯，放置在木质书桌上",
       atmosphereVibe: "静谧、复古、松弛感",
-      visualDetails: ["书页上的光斑", "杯口边缘的咖啡渍", "背景虚化的绿植", "暖色调的台灯光线"],
+      visualDetails: [
+        "书页上的光斑",
+        "杯口边缘的咖啡渍",
+        "背景虚化的绿植",
+        "暖色调的台灯光线",
+      ],
       imageQualityScore: "6分，构图有些杂乱，光线有些暗，清晰度一般",
       highlightFeature: "金色裂纹纹理在暖光下的反光效果",
     },
@@ -138,15 +141,26 @@ export const defaultVisualReport: VisualAnalysisReport = {
       fileName: "cup_002.jpg",
       subjectDescription: "同一只马克杯的特写，展示杯身的细节和质感",
       atmosphereVibe: "精致、温暖、治愈",
-      visualDetails: ["陶瓷表面的细腻质感", "墨绿色与金色的对比", "杯内残留的咖啡液", "柔和的侧光"],
-      imageQualityScore: "8分，构图、光线和清晰度都很好，特写的鱼眼效果稍微有点变形",
+      visualDetails: [
+        "陶瓷表面的细腻质感",
+        "墨绿色与金色的对比",
+        "杯内残留的咖啡液",
+        "柔和的侧光",
+      ],
+      imageQualityScore:
+        "8分，构图、光线和清晰度都很好，特写的鱼眼效果稍微有点变形",
       highlightFeature: "墨绿色与金色裂纹的强烈视觉对比",
     },
     {
       fileName: "cup_003.jpg",
       subjectDescription: "一个长发女生的背影，坐在书桌边，手上拿着一个马克杯",
       atmosphereVibe: "慵懒、放松、治愈",
-      visualDetails: ["书桌上的台灯", "书桌上的绿植", "书桌上的咖啡杯", "书桌上的笔记本电脑"],
+      visualDetails: [
+        "书桌上的台灯",
+        "书桌上的绿植",
+        "书桌上的咖啡杯",
+        "书桌上的笔记本电脑",
+      ],
       imageQualityScore: "6分，背景有些杂乱，主体不突出，光线比较平",
       highlightFeature: "女生的背影和书桌上的咖啡杯",
     },
@@ -188,7 +202,7 @@ function createContentStrategistAgent() {
     tools: [saveIntermediateProductTool],
     systemPrompt: contentStrategistSystemPrompt,
     responseFormat: ContentStrategyBriefSchema,
-  }) as StreamableAgent;
+  });
 }
 
 function createContentWriterAgent() {
@@ -197,7 +211,7 @@ function createContentWriterAgent() {
     tools: [saveIntermediateProductTool],
     systemPrompt: contentWriterSystemPrompt,
     responseFormat: CopywritingOutputSchema,
-  }) as StreamableAgent;
+  });
 }
 
 function createSeoOptimizerAgent() {
@@ -206,7 +220,7 @@ function createSeoOptimizerAgent() {
     tools: [saveIntermediateProductTool],
     systemPrompt: seoOptimizerSystemPrompt,
     responseFormat: SEOOptimizedNoteReportSchema,
-  }) as StreamableAgent;
+  });
 }
 
 function createContentStrategyTaskMessage(visualReport: VisualAnalysisReport) {
@@ -325,7 +339,7 @@ export async function runLesson3WorkflowWithStream(
 
 async function runAgentStepWithStream<TOutput>(input: {
   step: Lesson3WorkflowStep;
-  agent: StreamableAgent;
+  agent: ReactAgent;
   message: string;
   schema: z.ZodType<TOutput>;
   outputType: string;
@@ -371,7 +385,9 @@ async function runAgentStepWithStream<TOutput>(input: {
   }
 
   if (!structuredResponse) {
-    throw new Error(`${input.outputType} 未获取到结构化输出 structuredResponse`);
+    throw new Error(
+      `${input.outputType} 未获取到结构化输出 structuredResponse`,
+    );
   }
 
   input.onEvent?.({
@@ -415,7 +431,9 @@ export function formatLesson3WorkflowEvent(event: Lesson3WorkflowEvent) {
   }
 
   if (event.type === "tool_calls") {
-    const toolNames = event.toolCalls.map((toolCall) => toolCall.name).join("、");
+    const toolNames = event.toolCalls
+      .map((toolCall) => toolCall.name)
+      .join("、");
     return `${getStepLabel(event.step)}：正在调用工具 ${toolNames}`;
   }
 

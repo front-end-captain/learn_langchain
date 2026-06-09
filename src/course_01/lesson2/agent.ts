@@ -54,10 +54,14 @@ export const ContentStrategyBriefSchema = z.object({
     .describe("【核心痛点/诉求】受众最想解决的问题或最渴望的情绪价值。"),
   suggestedTitle: z
     .string()
-    .describe("【建议标题】痛点场景 + 情绪/利益钩子 + 核心人群标签，20 字以内。"),
+    .describe(
+      "【建议标题】痛点场景 + 情绪/利益钩子 + 核心人群标签，20 字以内。",
+    ),
   contentOutline: z
     .array(z.string())
-    .describe("【笔记大纲】正文结构安排：场景引入、沉浸式体验、干货植入、结尾引导。"),
+    .describe(
+      "【笔记大纲】正文结构安排：场景引入、沉浸式体验、干货植入、结尾引导。",
+    ),
   engagementStrategy: z
     .string()
     .describe("【点赞评论诱饵】设计具体策略来引发评论互动。"),
@@ -67,7 +71,9 @@ export const ContentStrategyBriefSchema = z.object({
   seoKeywords: z
     .array(z.string())
     .length(3)
-    .describe("【关键词布局】基于 KFS 策略，列出 3 个必须埋入文案的长尾关键词。"),
+    .describe(
+      "【关键词布局】基于 KFS 策略，列出 3 个必须埋入文案的长尾关键词。",
+    ),
 });
 
 export type VisualAnalysisReport = z.infer<typeof VisualAnalysisReportSchema>;
@@ -82,7 +88,12 @@ export const defaultVisualReport: VisualAnalysisReport = {
       subjectDescription:
         "一只带有金色裂纹纹理的墨绿色陶瓷马克杯，放置在木质书桌上",
       atmosphereVibe: "静谧、复古、松弛感",
-      visualDetails: ["书页上的光斑", "杯口边缘的咖啡渍", "背景虚化的绿植", "暖色调的台灯光线"],
+      visualDetails: [
+        "书页上的光斑",
+        "杯口边缘的咖啡渍",
+        "背景虚化的绿植",
+        "暖色调的台灯光线",
+      ],
       imageQualityScore: "6分，构图有些杂乱，光线有些暗，清晰度一般",
       highlightFeature: "金色裂纹纹理在暖光下的反光效果",
     },
@@ -90,7 +101,12 @@ export const defaultVisualReport: VisualAnalysisReport = {
       fileName: "cup_002.jpg",
       subjectDescription: "同一只马克杯的特写，展示杯身的细节和质感",
       atmosphereVibe: "精致、温暖、治愈",
-      visualDetails: ["陶瓷表面的细腻质感", "墨绿色与金色的对比", "杯内残留的咖啡液", "柔和的侧光"],
+      visualDetails: [
+        "陶瓷表面的细腻质感",
+        "墨绿色与金色的对比",
+        "杯内残留的咖啡液",
+        "柔和的侧光",
+      ],
       imageQualityScore:
         "8分，构图、光线和清晰度都很好，特写的鱼眼效果稍微有点变形",
       highlightFeature: "墨绿色与金色裂纹的强烈视觉对比",
@@ -99,7 +115,12 @@ export const defaultVisualReport: VisualAnalysisReport = {
       fileName: "cup_003.jpg",
       subjectDescription: "一个长发女生的背影，坐在书桌边，手上拿着一个马克杯",
       atmosphereVibe: "慵懒、放松、治愈",
-      visualDetails: ["书桌上的台灯", "书桌上的绿植", "书桌上的咖啡杯", "书桌上的笔记本电脑"],
+      visualDetails: [
+        "书桌上的台灯",
+        "书桌上的绿植",
+        "书桌上的咖啡杯",
+        "书桌上的笔记本电脑",
+      ],
       imageQualityScore: "6分，背景有些杂乱，主体不突出，光线比较平",
       highlightFeature: "女生的背影和书桌上的咖啡杯",
     },

@@ -16,8 +16,7 @@ export type Lesson1Result = {
   finalMessageType: string | undefined;
 };
 
-export const defaultLesson1Input =
-  "我今天健身了，感觉很开心，帮我设计一篇笔记";
+export const defaultLesson1Input = "我今天健身了，感觉很开心，帮我设计一篇笔记";
 
 const contentStrategistSystemPrompt = `
 你是：资深小红书增长策略专家。
@@ -114,3 +113,4 @@ export async function runLesson1WithStream(
     finalMessageType,
   };
 }
+
