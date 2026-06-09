@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "lib": ["ESNext"],
     "types": ["bun"],
+    "jsx": "react-jsx",
 
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
@@ -35,6 +36,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }
