@@ -1,13 +1,9 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import pino, { type Logger } from "pino";
-import type {
-  ImageAnalysis,
-  ImageAnalysisStreamEvent,
-} from "../course_01/lesson4/agent";
 
-type RunEndStatus = "success" | "error";
-type LogFormat = "jsonl" | "pretty" | "both";
+export type AgentRunStatus = "success" | "error";
+export type LogFormat = "jsonl" | "pretty" | "both";
 
 type LoggerTarget = {
   logFilePath: string;
@@ -15,24 +11,26 @@ type LoggerTarget = {
   close: () => void;
 };
 
-export type ImageAnalysisFileLogger = {
+export type AgentRunFileLogger<TEvent, TResult> = {
   logFilePath: string;
   prettyLogFilePath?: string;
-  writeRunStart: (input: { imagePath: string }) => void;
-  writeEvent: (event: ImageAnalysisStreamEvent) => void;
+  writeRunStart: (input: Record<string, unknown>) => void;
+  writeEvent: (event: TEvent) => void;
   writeRunEnd: (input: {
-    status: RunEndStatus;
-    analysis?: ImageAnalysis;
+    status: AgentRunStatus;
+    result?: TResult;
     error?: unknown;
   }) => void;
   close: () => void;
 };
 
-export function createImageAnalysisFileLogger(options: {
+export function createAgentRunFileLogger<TEvent, TResult>(options: {
   logDir: string;
+  runName: string;
   runId?: string;
   format?: LogFormat;
-}): ImageAnalysisFileLogger {
+  normalizeEvent?: (event: TEvent) => Record<string, unknown>;
+}): AgentRunFileLogger<TEvent, TResult> {
   const format = options.format ?? "jsonl";
   const runId = options.runId ?? createRunId();
 
@@ -61,7 +59,7 @@ export function createImageAnalysisFileLogger(options: {
     }
   }
 
-  const logger: ImageAnalysisFileLogger = {
+  return {
     logFilePath: jsonlTarget?.logFilePath ?? prettyTarget?.logFilePath ?? "",
     prettyLogFilePath: prettyTarget?.logFilePath ?? "",
 
@@ -69,19 +67,20 @@ export function createImageAnalysisFileLogger(options: {
       writeInfo(
         {
           type: "run_start",
-          imagePath: input.imagePath,
+          ...input,
         },
-        "image_analysis_run_start",
+        `${options.runName}_run_start`,
       );
     },
 
     writeEvent(event) {
+      const normalizedEvent = options.normalizeEvent
+        ? options.normalizeEvent(event)
+        : normalizeEvent(event);
+
       writeInfo(
-        {
-          type: event.type,
-          ...normalizeEventForLog(event),
-        },
-        "image_analysis_stream_event",
+        normalizedEvent,
+        `${options.runName}_stream_event`,
       );
     },
 
@@ -90,10 +89,10 @@ export function createImageAnalysisFileLogger(options: {
         {
           type: "run_end",
           status: input.status,
-          analysis: input.analysis,
+          result: input.result,
           error: input.error ? serializeError(input.error) : undefined,
         },
-        "image_analysis_run_end",
+        `${options.runName}_run_end`,
       );
     },
 
@@ -103,8 +102,6 @@ export function createImageAnalysisFileLogger(options: {
       }
     },
   };
-
-  return logger;
 }
 
 function createJsonlLogger(logDir: string, runId: string): LoggerTarget {
@@ -163,30 +160,18 @@ function createPrettyLogger(logDir: string, runId: string): LoggerTarget {
   };
 }
 
-function normalizeEventForLog(event: ImageAnalysisStreamEvent) {
-  if (event.type === "agent_update") {
-    return {
-      messageType: event.messageType,
-      content: event.content,
-    };
-  }
-
-  if (event.type === "tool_calls") {
-    return {
-      toolCalls: event.toolCalls.map((toolCall) => ({
-        id: toolCall.id,
-        name: toolCall.name,
-        args: toolCall.args,
-      })),
-    };
+function normalizeEvent(event: unknown): Record<string, unknown> {
+  if (isRecord(event)) {
+    return { ...event };
   }
 
   return {
-    analysis: event.analysis,
+    type: "stream_event",
+    event,
   };
 }
 
-function serializeError(error: unknown) {
+export function serializeError(error: unknown) {
   if (error instanceof Error) {
     return {
       name: error.name,
@@ -198,6 +183,10 @@ function serializeError(error: unknown) {
   return {
     message: String(error),
   };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function createRunId() {

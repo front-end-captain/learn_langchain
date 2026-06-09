@@ -8,8 +8,15 @@
 import { createAgent } from "langchain";
 import * as z from "zod";
 import { fileURLToPath } from "node:url";
-import type { ToolCall } from "@langchain/core/messages/tool";
 
+import {
+  createAgentUpdateEvent,
+  createStructuredResponseEvent,
+  createToolCallsEvent,
+  getToolCalls,
+  type AgentStreamEvent,
+  type AgentStreamEventHandler,
+} from "../../helper/agent-stream";
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
 import { addImageToContentLocalTool } from "../../tools/add-image-tool-local";
 import { saveIntermediateProductTool } from "../../tools/intermediate-tool";
@@ -48,24 +55,8 @@ export const ImageAnalysisSchema = z.object({
 
 export type ImageAnalysis = z.infer<typeof ImageAnalysisSchema>;
 
-export type ImageAnalysisStreamEvent =
-  | {
-      type: "agent_update";
-      messageType: string | undefined;
-      content: unknown;
-    }
-  | {
-      type: "tool_calls";
-      toolCalls: ToolCall[];
-    }
-  | {
-      type: "structured_response";
-      analysis: ImageAnalysis;
-    };
-
-export type ImageAnalysisStreamEventHandler = (
-  event: ImageAnalysisStreamEvent,
-) => void;
+export type ImageAnalysisStreamEvent = AgentStreamEvent<ImageAnalysis>;
+export type ImageAnalysisStreamEventHandler = AgentStreamEventHandler<ImageAnalysis>;
 
 export const defaultImagePath = fileURLToPath(
   new URL("./20260202161329_150_6.jpg", import.meta.url),
@@ -201,26 +192,16 @@ export async function runImageAnalysisWithStream(
   for await (const chunk of stream) {
     const lastMessage = chunk.messages.at(-1);
 
-    onEvent?.({
-      type: "agent_update",
-      messageType: lastMessage?.getType?.(),
-      content: maskBase64ImageContent(lastMessage?.content),
-    });
+    onEvent?.(createAgentUpdateEvent(lastMessage));
 
     const maybeToolCalls = getToolCalls(lastMessage);
     if (maybeToolCalls.length > 0) {
-      onEvent?.({
-        type: "tool_calls",
-        toolCalls: maybeToolCalls,
-      });
+      onEvent?.(createToolCallsEvent(maybeToolCalls));
     }
 
     if (chunk.structuredResponse) {
-      finalAnalysis = chunk.structuredResponse as ImageAnalysis;
-      onEvent?.({
-        type: "structured_response",
-        analysis: finalAnalysis,
-      });
+      finalAnalysis = ImageAnalysisSchema.parse(chunk.structuredResponse);
+      onEvent?.(createStructuredResponseEvent(finalAnalysis));
     }
   }
 
@@ -229,24 +210,4 @@ export async function runImageAnalysisWithStream(
   }
 
   return finalAnalysis;
-}
-
-export function maskBase64ImageContent(content: unknown) {
-  if (typeof content !== "string") {
-    return content;
-  }
-
-  return content.replace(
-    /data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=]+/g,
-    "[图片 Base64 内容已省略]",
-  );
-}
-
-function getToolCalls(message: unknown): ToolCall[] {
-  if (!message || typeof message !== "object" || !("tool_calls" in message)) {
-    return [];
-  }
-
-  const toolCalls = (message as { tool_calls?: unknown }).tool_calls;
-  return Array.isArray(toolCalls) ? (toolCalls as ToolCall[]) : [];
 }
