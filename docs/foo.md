@@ -120,6 +120,7 @@ crewAI 中 Task 中创建
 
 ``` python
 task = Task(
+    agent=content_strategist,
     description="""
     **任务要求**：
     1. 仔细分析视觉报告中的用户意图、图片质量和整体风格
@@ -137,7 +138,6 @@ task = Task(
     - 所有输出必须使用中文
     """,
     expected_output="一个完整的 ContentStrategyBrief 结构化输出，包含所有必填字段。",
-    agent=content_strategist,
     output_pydantic=ContentStrategyBrief,
 )
 

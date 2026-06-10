@@ -1,0 +1,27 @@
+[2026-06-10 05:03:28.202] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "human"
+    content: "今天北京的天气怎么样?"
+[2026-06-10 05:03:30.826] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "ai"
+    content: ""
+[2026-06-10 05:03:30.826] INFO: start_stream_event
+    type: "tool_calls"
+    toolCalls: [
+      {
+        "id": "call_4e3d079a1f9d4e83be212d7c",
+        "name": "get_weather",
+        "args": {
+          "city": "北京"
+        }
+      }
+    ]
+[2026-06-10 05:03:30.827] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "tool"
+    content: "It's always sunny in 北京!"
+[2026-06-10 05:03:32.561] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "ai"
+    content: "今天北京的天气是**晴天**！☀️ 阳光明媚，是个好天气！"
