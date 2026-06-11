@@ -124,20 +124,32 @@ const model = new AliyunQwenChatModel({
   apiBase: process.env["QWEN_API_BASE"] ?? "",
 });
 
+const systemPrompt = `
+你是：天气评论分析专家
+你的目标：根据 get_weather 返回的天气结果，进行简单分析，比如穿衣建议、事宜运动、是否带伞等
+`;
 const agent = createAgent({
   model,
   tools: [getWeather],
-  systemPrompt: `
-**输出要求**：
-最终结果必须符合 WeatherReport 结构。
-对于天气结果，可以添加一些天气的修饰词
-  `,
+  systemPrompt: systemPrompt,
   responseFormat: WeatherReportSchema,
 });
 
+const userPrompt = `
+今天北京的天气怎么样?
+**输出要求**：
+最终结果必须符合 WeatherReport 结构。
+对于天气结果，可以添加一些天气的修饰词
+`;
+
 const stream = await agent.stream(
   {
-    messages: [{ role: "user", content: "今天北京的天气怎么样?" }],
+    messages: [
+      {
+        role: "user",
+        content: userPrompt,
+      },
+    ],
   },
   { streamMode: "values" },
 );

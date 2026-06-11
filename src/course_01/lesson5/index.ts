@@ -6,11 +6,13 @@ import {
   createImageAnalysisTask,
   type ImageAnalysis,
   createImageAnalysisSummaryTask,
+} from "./analysis-task";
+import {
   createImageEditPlanTask,
   ImageEditPlanSchema,
   type ImageEditPlan,
   createImageEditPlanSummaryTask,
-} from "./tasks";
+} from "./edit-plan-tasks";
 import { ImageAnalysisSchema } from "../lesson2/agent";
 
 const imageExtensions = new Set([
@@ -24,7 +26,12 @@ const imageExtensions = new Set([
 
 const assetsPath = fileURLToPath(new URL("./assets/", import.meta.url));
 
-function getImagePaths() {
+export interface ImagePathItem {
+  id: number;
+  name: string;
+  path: string;
+}
+function getImagePaths(): ImagePathItem[] {
   return readdirSync(assetsPath, { withFileTypes: true })
     .filter((dirent) => {
       if (!dirent.isFile()) {
@@ -38,80 +45,106 @@ function getImagePaths() {
 
       return imageExtensions.has(dirent.name.slice(lastDotIndex).toLowerCase());
     })
-    .map((dirent) =>
-      fileURLToPath(new URL(`./assets/${dirent.name}`, import.meta.url)),
-    )
-    .sort();
+    .map((dirent, index) => {
+      return {
+        id: index,
+        name: dirent.name,
+        path: fileURLToPath(
+          new URL(`./assets/${dirent.name}`, import.meta.url),
+        ),
+      };
+    });
 }
 
-async function runVisualAnalysisPhase(imagePaths: string[], ideaText: string) {
+async function runVisualAnalysisPhase(
+  imagePaths: ImagePathItem[],
+  ideaText: string,
+) {
   const taskResults = await Promise.allSettled(
     imagePaths.map((imagePath) => createImageAnalysisTask(imagePath, ideaText)),
   );
 
-  const imagePathToAnalysisResult = new Map<string, ImageAnalysis>()
+  const imageIdToAnalysisResult = new Map<number, ImageAnalysis>();
 
   taskResults.forEach((result, index) => {
-    if (result.status === 'fulfilled') {
-      const parsed = ImageAnalysisSchema.parse(result.value.structuredResponse);
-      imagePathToAnalysisResult.set(imagePaths[index]!, parsed)
+    if (result.status === "fulfilled") {
+      const parsed = ImageAnalysisSchema.parse(
+        result.value.result.structuredResponse,
+      );
+      imageIdToAnalysisResult.set(result.value.imagePath.id, parsed);
     } else {
-      console.error(`ImageAnalysisTask Failed: ${imagePaths[index]}`, result.reason);
+      console.error(`ImageAnalysisTask Failed, `, result.reason);
     }
   });
-  let context = ''
-  imagePathToAnalysisResult.forEach((result, imagePath) => {
-    context += `图片(${imagePath}): ${JSON.stringify(result)}`
-  })
-  const summaryResult = await createImageAnalysisSummaryTask(
-    context,
-  );
-  const visualAnalysisSummaryResult = summaryResult.structuredResponse;
-  return { imagePathToAnalysisResult, visualAnalysisSummaryResult }
+  let context = "";
+  imageIdToAnalysisResult.forEach((result, imagePath) => {
+    context += `图片(${imagePath}): ${JSON.stringify(result)}`;
+  });
+  const summaryResult = await createImageAnalysisSummaryTask(context);
+  const visualAnalysisSummaryResult =
+    summaryResult.messages.at(-1)?.content || "";
+  return { imageIdToAnalysisResult, visualAnalysisSummaryResult };
 }
 
-
-async function runVisualEditPlanPhase(imagePaths: string[], ideaText: string, imagePathToAnalysisResult: Map<string, ImageAnalysis>) {
+async function runVisualEditPlanPhase(
+  imagePaths: ImagePathItem[],
+  ideaText: string,
+  imageIdToAnalysisResult: Map<number, ImageAnalysis>,
+) {
   const taskResults = await Promise.allSettled(
     imagePaths.map((imagePath) => {
-      return createImageEditPlanTask(imagePath, ideaText, imagePathToAnalysisResult.get(imagePath)!)
+      return createImageEditPlanTask(
+        imagePath,
+        ideaText,
+        imageIdToAnalysisResult.get(imagePath.id)!,
+      );
     }),
   );
 
-  const imagePathToEditPlanResult = new Map<string, ImageEditPlan>()
+  const imageIdToEditPlanResult = new Map<number, ImageEditPlan>();
 
   taskResults.forEach((result, index) => {
-    if (result.status === 'fulfilled') {
-      const parsed = ImageEditPlanSchema.parse(result.value.structuredResponse);
-      imagePathToEditPlanResult.set(imagePaths[index]!, parsed)
+    if (result.status === "fulfilled") {
+      try {
+        const parsed = ImageEditPlanSchema.parse(
+          result.value.result.structuredResponse,
+        );
+        imageIdToEditPlanResult.set(result.value.imagePath.id, parsed);
+      } catch (error) {
+        console.error(`ImageEditPlanTaskResult parse Failed, `, error);
+      }
     } else {
-      console.error(`ImageEditPlanTask Failed: ${imagePaths[index]}`, result.reason);
+      console.error(`ImageEditPlanTask Failed, `, result.reason);
     }
   });
-  let context = ''
-  imagePathToEditPlanResult.forEach((result, imagePath) => {
-    context += `图片(${imagePath}): ${JSON.stringify(result)}`
-
-  })
-  const summaryResult = await createImageEditPlanSummaryTask(
-    context,
-  );
-  const visualEditPlanSummaryResult = summaryResult.messages[0]?.content || "";
-  return { imagePathToEditPlanResult, visualEditPlanSummaryResult }
+  let context = "";
+  imageIdToEditPlanResult.forEach((result, imagePath) => {
+    context += `图片(${imagePath}): ${JSON.stringify(result)}`;
+  });
+  const summaryResult = await createImageEditPlanSummaryTask(context);
+  const visualEditPlanSummaryResult =
+    summaryResult.messages.at(-1)?.content || "";
+  return { imageIdToEditPlanResult, visualEditPlanSummaryResult };
 }
 
-if (path.normalize(import.meta.url).endsWith(path.normalize(process.argv[1] || ''))) {
-  const imagePaths = getImagePaths()
-  const ideaText = "我想分享最近开始用地中海饮食减脂"
-  const { imagePathToAnalysisResult, visualAnalysisSummaryResult } = await runVisualAnalysisPhase(
-    imagePaths,
-    ideaText
-  );
-  console.info('imagePathToAnalysisResult', imagePathToAnalysisResult)
-  console.info('visualAnalysisSummaryResult', visualAnalysisSummaryResult)
-  const { imagePathToEditPlanResult, visualEditPlanSummaryResult } = await runVisualEditPlanPhase(imagePaths, ideaText, imagePathToAnalysisResult)
-  console.info('imagePathToEditPlanResult', imagePathToEditPlanResult)
-  console.info('visualEditPlanSummaryResult', visualEditPlanSummaryResult)
+if (
+  path
+    .normalize(import.meta.url)
+    .endsWith(path.normalize(process.argv[1] || ""))
+) {
+  const ideaText = "我想分享最近开始用地中海饮食减脂";
+  const imagePaths = getImagePaths();
+  console.info("imagePaths", imagePaths);
+
+  const { imageIdToAnalysisResult, visualAnalysisSummaryResult } =
+    await runVisualAnalysisPhase(imagePaths, ideaText);
+  console.info("imageIdToAnalysisResult", imageIdToAnalysisResult);
+  console.info("visualAnalysisSummaryResult", visualAnalysisSummaryResult);
+
+  const { imageIdToEditPlanResult, visualEditPlanSummaryResult } =
+    await runVisualEditPlanPhase(imagePaths, ideaText, imageIdToAnalysisResult);
+  console.info("imageIdToEditPlanResult", imageIdToEditPlanResult);
+  console.info("visualEditPlanSummaryResult", visualEditPlanSummaryResult);
 
   // console.info(JSON.stringify(result, null, 2));
 }
