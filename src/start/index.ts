@@ -11,8 +11,8 @@ import type { MessageType } from "@langchain/core/messages";
 import type { ToolCall } from "@langchain/core/messages/tool";
 import { tool } from "@langchain/core/tools";
 import * as z from "zod";
-import { AliyunQwenChatModel } from "./llm/aliyun-qwen-chat-model";
-import { createAgentRunFileLogger } from "./helper/file-logger";
+import { AliyunQwenChatModel } from "../llm/aliyun-qwen-chat-model";
+import { createAgentRunFileLogger } from "../helper/file-logger";
 
 type AgentStreamEvent<TStructuredResponse = unknown> =
   | {
@@ -128,9 +128,9 @@ const agent = createAgent({
   model,
   tools: [getWeather],
   systemPrompt: `
-**结构化输出要求**：
+**输出要求**：
 最终结果必须符合 WeatherReport 结构。
-可以在结构化结果之外额外输出，比如添加一些修饰词。
+对于天气结果，可以添加一些天气的修饰词
   `,
   responseFormat: WeatherReportSchema,
 });
@@ -173,6 +173,4 @@ for await (const chunk of stream) {
   }
 }
 
-if (!weatherReport) {
-  throw new Error("未获取到结构化输出 structuredResponse");
-}
+console.info(weatherReport?.city + ": " + weatherReport?.weather);
