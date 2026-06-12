@@ -124,6 +124,7 @@ const model = new AliyunQwenChatModel({
   apiBase: process.env["QWEN_API_BASE"] ?? "",
 });
 
+// NOTE: 系统提示词不需要强调期望的输出格式
 const systemPrompt = `
 你是：天气评论分析专家
 你的目标：根据 get_weather 返回的天气结果，进行简单分析，比如穿衣建议、事宜运动、是否带伞等
@@ -135,6 +136,7 @@ const agent = createAgent({
   responseFormat: WeatherReportSchema,
 });
 
+// NOTE: 如果 createAgent 时指定了 `responseFormat`， 用户提示词需要强调期望的输出格式
 const userPrompt = `
 今天北京的天气怎么样?
 **输出要求**：

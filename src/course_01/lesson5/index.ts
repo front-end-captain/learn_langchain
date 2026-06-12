@@ -127,6 +127,15 @@ async function runVisualEditPlanPhase(
   return { imageIdToEditPlanResult, visualEditPlanSummaryResult };
 }
 
+async function runContentPhase(
+  ideaText: string,
+  imagePaths: ImagePathItem[],
+  imageIdToAnalysisResult: Map<string, ImageAnalysis>,
+  visualAnalysisSummaryResult: string,
+  imageIdToEditPlanResult: Map<string, ImageEditPlan>,
+  visualEditPlanSummaryResult: string,
+) {}
+
 if (
   path
     .normalize(import.meta.url)
