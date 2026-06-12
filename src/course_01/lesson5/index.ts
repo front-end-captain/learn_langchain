@@ -4,6 +4,7 @@ import path from "node:path";
 
 import {
   createImageAnalysisTask,
+  ImageAnalysisSchema
   type ImageAnalysis,
   createImageAnalysisSummaryTask,
 } from "./analysis-task";
@@ -13,7 +14,7 @@ import {
   type ImageEditPlan,
   createImageEditPlanSummaryTask,
 } from "./edit-plan-tasks";
-import { ImageAnalysisSchema } from "../lesson2/agent";
+import { createcontentStrategyTask } from './content-task'
 
 const imageExtensions = new Set([
   ".jpg",
@@ -134,7 +135,10 @@ async function runContentPhase(
   visualAnalysisSummaryResult: string,
   imageIdToEditPlanResult: Map<string, ImageEditPlan>,
   visualEditPlanSummaryResult: string,
-) {}
+) {
+  await createcontentStrategyTask(ideaText,)
+
+}
 
 if (
   path

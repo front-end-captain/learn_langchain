@@ -12,28 +12,28 @@ const llm = new AliyunQwenChatModel({
 });
 
 export const ContentStrategySchema = z.object({
-  input_evaluation: z
+  inputEvaluation: z
     .string()
     .describe("基于用户诉求和图片素材的综合评估，指出优势、劣势和修图建议。"),
-  target_audience_persona: z
+  targetAudiencePersona: z
     .string()
     .describe("目标受众画像：年龄、职业、生活状态、心理诉求等。"),
-  core_pain_point: z.string().describe("核心痛点 / 诉求。"),
-  suggested_title: z
+  corePainPoint: z.string().describe("核心痛点 / 诉求。"),
+  suggestedTitle: z
     .string()
     .describe(
       "建议标题，遵循【痛点场景 + 情绪/利益钩子 + 群体标签】并包含 Emoji。",
     ),
-  content_outline: z
+  contentOutline: z
     .array(z.string())
     .describe("笔记大纲：如场景引入、体验描写、干货植入、结尾引导等。"),
-  engagement_strategy: z
+  engagementStrategy: z
     .string()
     .describe("互动策略：如何设计评论诱饵 / 点赞引导等。"),
-  retention_strategy: z
+  retentionStrategy: z
     .string()
     .describe("收藏策略：为用户提供收藏理由的具体做法。"),
-  seo_keywords: z
+  seoKeywords: z
     .array(z.string())
     .describe("3 个左右必须埋入文案的长尾关键词列表。"),
 });
@@ -42,8 +42,8 @@ export type ContentStrategy = z.infer<typeof ContentStrategySchema>;
 
 function createContentStrategyTaskMessage(
   ideaText: string,
-  visual_report: string,
-  edit_report: string,
+  visualReport: string,
+  editReport: string,
 ) {
   return `
 你将基于用户创作意图、多张图片的视觉分析报告以及编辑方案概要，输出一份可直接指导爆款笔记创作的内容策略简报。
@@ -51,18 +51,18 @@ function createContentStrategyTaskMessage(
 1）用户的原始创作意图 user_raw_intent（字符串）：
    ${ideaText}
 
-2）多张图片的视觉分析报告 visual_report（JSON格式）：
-   ${visual_report}
+2）多张图片的视觉分析报告 visualReport（JSON格式）：
+   ${visualReport}
 
-3）图片编辑方案概要 edit_report（JSON格式）：
-   ${edit_report}
+3）图片编辑方案概要 editReport（JSON格式）：
+   ${editReport}
 
 请仔细阅读上述信息，基于用户意图和图片分析结果，制定符合小红书平台增长逻辑的内容策略简报。
 特别重要：
 - 必须严格基于用户提供的创作意图和图片分析结果，不得自行编造或使用示例数据。
 - 如果用户意图是"地中海饮食减脂"，则策略应围绕地中海饮食相关内容，而不是其他主题（如咖啡机）。
 - 所有策略建议必须与用户意图和图片内容高度相关。
-- 请完整阅读visual_report和edit_report中的内容，确保策略与图片实际内容一致。
+- 请完整阅读visualReport和editReport中的内容，确保策略与图片实际内容一致。
 - 使用 Save_Intermediate_Product_Tool 工具保存中间思考过程
 
 **期望输出：**
@@ -103,8 +103,8 @@ const contentStrategySystemPrompt = `
 
 export async function createcontentStrategyTask(
   ideaText: string,
-  visual_report: string,
-  edit_report: string,
+  visualReport: string,
+  editReport: string,
 ) {
   const agent = createAgent({
     model: llm,
@@ -119,8 +119,8 @@ export async function createcontentStrategyTask(
         role: "user",
         content: createContentStrategyTaskMessage(
           ideaText,
-          visual_report,
-          edit_report,
+          visualReport,
+          editReport,
         ),
       },
     ],

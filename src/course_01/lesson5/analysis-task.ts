@@ -11,7 +11,7 @@ const llm = new AliyunQwenChatModel({
   apiBase: process.env["QWEN_API_BASE"] ?? "",
 });
 
-const ImageAnalysisSchema = z.object({
+export const ImageAnalysisSchema = z.object({
   fileName: z.string().describe("图片文件名或 ID，用于标识图片。"),
   subjectDescription: z
     .string()

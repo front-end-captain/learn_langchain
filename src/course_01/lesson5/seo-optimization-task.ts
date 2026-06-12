@@ -1,37 +1,52 @@
+import * as z from "zod";
+import { createAgent } from "langchain";
 
-// SEOOptimizedNoteSchema
-/**
-class SEOOptimizedNote(BaseModel):
-"""SEO 优化后的笔记内容，由搜索优化 Agent 产出。"""
+import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
+import { saveIntermediateProductTool } from "../../tools/intermediate-tool";
 
-optimization_summary: str = Field(
-    ..., description="本次 SEO 优化的要点与改动说明。"
-)
-optimized_title: str = Field(..., description="SEO 优化后的标题。")
-optimized_content: str = Field(..., description="SEO 优化后的正文。")
-optimized_picture_order: List[str] = Field(
-    ..., description="结合搜索与转化优化后的图片顺序。"
-)
-tags: List[str] = Field(..., description="5-8 个用于搜索与话题分发的标签。")
-*/
+const llm = new AliyunQwenChatModel({
+  model: "qwen3.7-plus",
+  imageModel: "qwen3-vl-plus",
+  apiKey: process.env["QWEN_API_KEY"] ?? "",
+  apiBase: process.env["QWEN_API_BASE"] ?? "",
+});
 
-// createSEOOptimizedNoteTaskMessage
-/**
+export const SEOOptimizedNoteSchema = z.object({
+  optimizationSummary: z.string().describe("本次 SEO 优化的要点与改动说明。"),
+  optimizedTitle: z.string().describe("SEO 优化后的标题。"),
+  optimizedContent: z.string().describe("SEO 优化后的正文。"),
+  optimizedPictureOrder: z
+    .array(z.string())
+    .describe("结合搜索与转化优化后的图片顺序。"),
+  tags: z
+    .array(z.string())
+    .describe("5-8 个用于搜索与话题分发的标签。"),
+});
+
+export type SEOOptimizedNote = z.infer<typeof SEOOptimizedNoteSchema>;
+
+function createSEOOptimizedNoteTaskMessage(
+  copywritingOutput: string,
+  contentStrategy: string,
+) {
+  return `
 你将基于内容策略与原始文案，对标题、正文、图片顺序与标签进行搜索优化，
+
 1）原始文案 copywritingOutput（JSON格式）：
    ${copywritingOutput}
 
-2）内容策略 content_strategy（JSON格式）：
-   ${content_strategy}
+2）内容策略 contentStrategy（JSON格式）：
+   ${contentStrategy}
 
 在不损害阅读体验和情绪价值的前提下，自然融入长尾关键词。
 使用 Save_Intermediate_Product_Tool 工具保存中间思考过程
+
 **期望输出：**
 一个完整的 SEOOptimizedNote 结构化输出。
-*/
+  `.trim();
+}
 
-// seoOptimizedSystemPrompt
-/**
+const seoOptimizedSystemPrompt = `
 role: 资深小红书搜索与推荐优化专家
 goal: 在不牺牲内容可读性与情绪价值的前提下，以长尾关键词和 KFS 闭环为核心，将笔记自然嵌入小红书的搜索与推荐体系，持续放大其长期自然流量，而不是简单追求短期排名冲高。
 backstory: |
@@ -60,4 +75,28 @@ backstory: |
   - 不从零撰写完整文案，只在既有文案基础上做优化；如有缺失内容，会以建议形式提示内容团队补充。
   - 不对平台算法做「玄学式揣测」，所有优化建议都基于可解释的经验与可观察的数据现象。
   - 所有输出必须使用中文。
-*/
+`;
+
+export async function createSEOOptimizedNoteTask(
+  copywritingOutput: string,
+  contentStrategy: string,
+) {
+  const agent = createAgent({
+    model: llm,
+    tools: [saveIntermediateProductTool],
+    systemPrompt: seoOptimizedSystemPrompt,
+    responseFormat: SEOOptimizedNoteSchema,
+  });
+
+  return await agent.invoke({
+    messages: [
+      {
+        role: "user",
+        content: createSEOOptimizedNoteTaskMessage(
+          copywritingOutput,
+          contentStrategy,
+        ),
+      },
+    ],
+  });
+}
