@@ -4,7 +4,7 @@ import path from "node:path";
 
 import {
   createImageAnalysisTask,
-  ImageAnalysisSchema
+  ImageAnalysisSchema,
   type ImageAnalysis,
   createImageAnalysisSummaryTask,
 } from "./analysis-task";
@@ -14,7 +14,9 @@ import {
   type ImageEditPlan,
   createImageEditPlanSummaryTask,
 } from "./edit-plan-tasks";
-import { createcontentStrategyTask } from './content-task'
+import { createcontentStrategyTask } from "./content-task";
+import { createCopywritingTask } from "./copyrighting-task";
+import { createSEOOptimizedNoteTask } from "./seo-optimization-task";
 
 const imageExtensions = new Set([
   ".jpg",
@@ -67,7 +69,7 @@ async function runVisualAnalysisPhase(
 
   const imageIdToAnalysisResult = new Map<number, ImageAnalysis>();
 
-  taskResults.forEach((result, index) => {
+  taskResults.forEach((result) => {
     if (result.status === "fulfilled") {
       const parsed = ImageAnalysisSchema.parse(
         result.value.result.structuredResponse,
@@ -82,8 +84,8 @@ async function runVisualAnalysisPhase(
     context += `图片(${imagePath}): ${JSON.stringify(result)}`;
   });
   const summaryResult = await createImageAnalysisSummaryTask(context);
-  const visualAnalysisSummaryResult =
-    summaryResult.messages.at(-1)?.content || "";
+  const visualAnalysisSummaryResult = (summaryResult.messages.at(-1)?.content ||
+    "") as string;
   return { imageIdToAnalysisResult, visualAnalysisSummaryResult };
 }
 
@@ -123,21 +125,43 @@ async function runVisualEditPlanPhase(
     context += `图片(${imagePath}): ${JSON.stringify(result)}`;
   });
   const summaryResult = await createImageEditPlanSummaryTask(context);
-  const visualEditPlanSummaryResult =
-    summaryResult.messages.at(-1)?.content || "";
+  const visualEditPlanSummaryResult = (summaryResult.messages.at(-1)?.content ||
+    "") as string;
   return { imageIdToEditPlanResult, visualEditPlanSummaryResult };
 }
 
 async function runContentPhase(
   ideaText: string,
-  imagePaths: ImagePathItem[],
-  imageIdToAnalysisResult: Map<string, ImageAnalysis>,
+  imageIdToAnalysisResult: Map<number, ImageAnalysis>,
   visualAnalysisSummaryResult: string,
-  imageIdToEditPlanResult: Map<string, ImageEditPlan>,
+  imageIdToEditPlanResult: Map<number, ImageEditPlan>,
   visualEditPlanSummaryResult: string,
 ) {
-  await createcontentStrategyTask(ideaText,)
-
+  const visualReport = JSON.stringify({
+    user_raw_intent: ideaText,
+    images_visual: Array.from(imageIdToAnalysisResult.values()),
+    summary: visualAnalysisSummaryResult,
+  });
+  const editReport = JSON.stringify({
+    images_edit_plan: Array.from(imageIdToEditPlanResult.values()),
+    summary: visualEditPlanSummaryResult,
+  });
+  const contentStrategyResult = await createcontentStrategyTask(
+    ideaText,
+    visualReport,
+    editReport,
+  );
+  const copywritingResult = await createCopywritingTask(
+    ideaText,
+    visualReport,
+    editReport,
+    JSON.stringify(contentStrategyResult.structuredResponse),
+  );
+  const seoOptimizedNoteResult = await createSEOOptimizedNoteTask(
+    JSON.stringify(contentStrategyResult.structuredResponse),
+    JSON.stringify(copywritingResult.structuredResponse),
+  );
+  return seoOptimizedNoteResult.structuredResponse;
 }
 
 if (
@@ -147,17 +171,48 @@ if (
 ) {
   const ideaText = "我想分享最近开始用地中海饮食减脂";
   const imagePaths = getImagePaths();
-  console.info("imagePaths", imagePaths);
 
   const { imageIdToAnalysisResult, visualAnalysisSummaryResult } =
     await runVisualAnalysisPhase(imagePaths, ideaText);
-  console.info("imageIdToAnalysisResult", imageIdToAnalysisResult);
-  console.info("visualAnalysisSummaryResult", visualAnalysisSummaryResult);
+  // console.info("imageIdToAnalysisResult", imageIdToAnalysisResult);
+  // console.info("visualAnalysisSummaryResult", visualAnalysisSummaryResult);
 
   const { imageIdToEditPlanResult, visualEditPlanSummaryResult } =
     await runVisualEditPlanPhase(imagePaths, ideaText, imageIdToAnalysisResult);
-  console.info("imageIdToEditPlanResult", imageIdToEditPlanResult);
-  console.info("visualEditPlanSummaryResult", visualEditPlanSummaryResult);
+  // console.info("imageIdToEditPlanResult", imageIdToEditPlanResult);
+  // console.info("visualEditPlanSummaryResult", visualEditPlanSummaryResult);
 
-  // console.info(JSON.stringify(result, null, 2));
+  const seoNote = await runContentPhase(
+    ideaText,
+    imageIdToAnalysisResult,
+    visualAnalysisSummaryResult,
+    imageIdToEditPlanResult,
+    visualEditPlanSummaryResult,
+  );
+
+  let plan = "";
+  imageIdToEditPlanResult.forEach((item, id) => {
+    plan += `图片ID：${id}\n`;
+    plan += `图片编辑方案: ${item.overallEditStrategy}\n`;
+    plan += `图片剪裁建议: ${item.crop_suggestion}\n`;
+    plan += `图片亮度/对比度/饱和度调整建议: ${item.light_color_adjustment}\n`;
+    plan += `图片滤镜建议: ${item.filter_suggestion}\n`;
+    plan += `图片文字建议: ${item.text_overlay_suggestion}\n`;
+    plan += `图片美颜建议: ${item.beauty_adjustment_suggestion}\n`;
+    plan += `图片是否建议作为首图: ${item.is_recommended_as_cover}\n`;
+    plan += `图片需要规避的审美风险/平台审核风险: ${item.risk_and_pitfall_notes}\n`;
+    plan += "\n";
+  });
+
+  const finalReport = `
+原始创作意图: ${ideaText}
+生成笔记标题: ${seoNote.optimizedTitle}
+生成笔记正文: ${seoNote.optimizedContent}
+生成笔记图片顺序: ${seoNote.optimizedPictureOrder}
+生成笔记标签: ${seoNote.tags}
+生成笔记图片编辑方案: \n
+${plan}
+  `;
+
+  console.info(finalReport);
 }

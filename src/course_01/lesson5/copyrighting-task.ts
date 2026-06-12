@@ -3,7 +3,6 @@ import * as z from "zod";
 
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
 import { saveIntermediateProductTool } from "../../tools/intermediate-tool";
-import type { ContentStrategy } from "./content-task";
 
 const llm = new AliyunQwenChatModel({
   model: "qwen3.7-plus",
@@ -98,7 +97,7 @@ export async function createCopywritingTask(
   ideaText: string,
   visualReport: string,
   editReport: string,
-  contentStrategy: ContentStrategy,
+  contentStrategy: string,
 ) {
   const agent = createAgent({
     model: llm,
@@ -115,7 +114,7 @@ export async function createCopywritingTask(
           ideaText,
           visualReport,
           editReport,
-          JSON.stringify(contentStrategy),
+          contentStrategy,
         ),
       },
     ],
