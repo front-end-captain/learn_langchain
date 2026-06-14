@@ -11,11 +11,11 @@ type LoggerTarget = {
   close: () => void;
 };
 
-export type AgentRunFileLogger<TEvent, TResult> = {
+export type AgentRunFileLogger<TResult> = {
   logFilePath: string;
   prettyLogFilePath?: string;
   writeRunStart: (input: Record<string, unknown>) => void;
-  writeEvent: (event: TEvent) => void;
+  writeEvent: (event: Record<string, unknown>) => void;
   writeRunEnd: (input: {
     status: AgentRunStatus;
     result?: TResult;
@@ -24,13 +24,12 @@ export type AgentRunFileLogger<TEvent, TResult> = {
   close: () => void;
 };
 
-export function createAgentRunFileLogger<TEvent, TResult>(options: {
+export function createAgentRunFileLogger<TResult>(options: {
   logDir: string;
   runName: string;
   runId?: string;
   format?: LogFormat;
-  normalizeEvent?: (event: TEvent) => Record<string, unknown>;
-}): AgentRunFileLogger<TEvent, TResult> {
+}): AgentRunFileLogger<TResult> {
   const format = options.format ?? "jsonl";
   const runId = options.runId ?? createRunId();
 
@@ -74,14 +73,7 @@ export function createAgentRunFileLogger<TEvent, TResult>(options: {
     },
 
     writeEvent(event) {
-      const normalizedEvent = options.normalizeEvent
-        ? options.normalizeEvent(event)
-        : normalizeEvent(event);
-
-      writeInfo(
-        normalizedEvent,
-        `${options.runName}_stream_event`,
-      );
+      writeInfo(event, `${options.runName}_stream_event`);
     },
 
     writeRunEnd(input) {
@@ -160,17 +152,6 @@ function createPrettyLogger(logDir: string, runId: string): LoggerTarget {
   };
 }
 
-function normalizeEvent(event: unknown): Record<string, unknown> {
-  if (isRecord(event)) {
-    return { ...event };
-  }
-
-  return {
-    type: "stream_event",
-    event,
-  };
-}
-
 export function serializeError(error: unknown) {
   if (error instanceof Error) {
     return {
@@ -185,7 +166,7 @@ export function serializeError(error: unknown) {
   };
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 

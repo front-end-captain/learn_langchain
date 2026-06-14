@@ -3,18 +3,10 @@ import {
   createAgentUpdateEvent,
   createToolCallsEvent,
   getToolCalls,
-  type AgentStreamEvent,
   type AgentStreamEventHandler,
 } from "../../helper/agent-stream";
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
 import { saveIntermediateProductTool } from "../../tools/intermediate-tool";
-
-export type Lesson1StreamEvent = AgentStreamEvent;
-
-export type Lesson1Result = {
-  finalContent: unknown;
-  finalMessageType: string | undefined;
-};
 
 export const defaultLesson1Input = "我今天健身了，感觉很开心，帮我设计一篇笔记";
 
@@ -76,7 +68,7 @@ export function createContentStrategistAgent() {
 export async function runLesson1WithStream(
   input: string,
   onEvent?: AgentStreamEventHandler,
-): Promise<Lesson1Result> {
+) {
   const contentStrategist = createContentStrategistAgent();
   const stream = await contentStrategist.stream(
     {
@@ -92,12 +84,12 @@ export async function runLesson1WithStream(
     },
   );
 
-  let finalContent: unknown;
+  let finalContent: string | undefined;
   let finalMessageType: string | undefined;
 
   for await (const chunk of stream) {
     const lastMessage = chunk.messages.at(-1);
-    finalContent = lastMessage?.content;
+    finalContent = lastMessage?.content as string;
     finalMessageType = lastMessage?.getType?.();
 
     onEvent?.(createAgentUpdateEvent(lastMessage));
@@ -109,8 +101,7 @@ export async function runLesson1WithStream(
   }
 
   return {
-    finalContent,
-    finalMessageType,
+    message: finalContent,
+    type: finalMessageType,
   };
 }
-

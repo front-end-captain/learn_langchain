@@ -1,10 +1,10 @@
 import path from "node:path";
 import url from "node:url";
 import { render } from "ink";
-import { defaultLesson1Input, runLesson1WithStream } from "./agent";
-import { App } from "../../output";
+import { run } from "./agent";
+import { App } from "../output";
 
-const input = process.argv[2] ?? defaultLesson1Input;
+const input = process.argv[2] ?? "今天北京天气怎么样";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const logDir = path.join(__dirname, "logs");
@@ -12,9 +12,9 @@ const logDir = path.join(__dirname, "logs");
 render(
   <App
     input={input}
-    run={runLesson1WithStream}
+    run={run}
     logDir={logDir}
-    logFormat="both"
-    runName="lesson1"
+    logFormat="pretty"
+    runName="start"
   />,
 );

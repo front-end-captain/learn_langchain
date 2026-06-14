@@ -1,0 +1,40 @@
+[2026-06-13 07:50:46.923] INFO: start_run_start
+    type: "run_start"
+    input: "今天北京天气怎么样"
+[2026-06-13 07:50:46.937] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "human"
+    content: "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n"
+[2026-06-13 07:50:49.656] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "ai"
+    content: ""
+[2026-06-13 07:50:49.656] INFO: start_stream_event
+    type: "tool_calls"
+    toolCalls: [
+      {
+        "id": "call_97394e63c38f4d0b86e4e6c3",
+        "name": "get_weather",
+        "args": {
+          "city": "北京"
+        }
+      }
+    ]
+[2026-06-13 07:50:49.940] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "tool"
+    content: "北京 当前天气: 多云, 气温: 27摄氏度, 南风3级, 相对湿度: 57, 报告时间: 10 分钟前发布"
+[2026-06-13 07:50:53.555] INFO: start_stream_event
+    type: "agent_update"
+    messageType: "ai"
+    content: "Returning structured response: {\"city\":\"北京\",\"weather\":\"多云，气温27摄氏度，南风3级，相对湿度57%\"}"
+[2026-06-13 07:50:53.556] INFO: start_stream_event
+    type: "structured_response"
+    structuredResponse: "北京: 多云，气温27摄氏度，南风3级，相对湿度57%"
+[2026-06-13 07:50:53.556] INFO: start_run_end
+    type: "run_end"
+    status: "success"
+    result: {
+      "type": "ai",
+      "message": "北京: 多云，气温27摄氏度，南风3级，相对湿度57%"
+    }

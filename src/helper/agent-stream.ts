@@ -7,8 +7,9 @@ import {
   SystemMessage,
   ToolMessage,
 } from "langchain";
+import * as Z from "zod";
 
-export type AgentStreamEvent<TStructuredResponse = unknown> =
+export type AgentStreamEvent =
   | {
       type: "agent_update";
       messageType: MessageType | undefined;
@@ -20,16 +21,14 @@ export type AgentStreamEvent<TStructuredResponse = unknown> =
     }
   | {
       type: "structured_response";
-      structuredResponse: TStructuredResponse;
+      structuredResponse: Z.JSONType;
     };
 
-export type AgentStreamEventHandler<TStructuredResponse = unknown> = (
-  event: AgentStreamEvent<TStructuredResponse>,
-) => void;
+export type AgentStreamEventHandler = (event: AgentStreamEvent) => void;
 
 export function createAgentUpdateEvent(
   message?: BaseMessage,
-): AgentStreamEvent<never> {
+): AgentStreamEvent {
   let agentStreamEvent: AgentStreamEvent = {
     type: "agent_update",
     messageType: "UNKNOWN",
@@ -51,18 +50,16 @@ export function createAgentUpdateEvent(
   return agentStreamEvent;
 }
 
-export function createToolCallsEvent(
-  toolCalls: ToolCall[],
-): AgentStreamEvent<never> {
+export function createToolCallsEvent(toolCalls: ToolCall[]): AgentStreamEvent {
   return {
     type: "tool_calls",
     toolCalls,
   };
 }
 
-export function createStructuredResponseEvent<TStructuredResponse>(
-  structuredResponse: TStructuredResponse,
-): AgentStreamEvent<TStructuredResponse> {
+export function createStructuredResponseEvent(
+  structuredResponse: Z.JSONType,
+): AgentStreamEvent {
   return {
     type: "structured_response",
     structuredResponse,

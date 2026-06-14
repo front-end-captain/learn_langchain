@@ -7,12 +7,7 @@ import {
   normalizeAgentStreamEventForLog,
 } from "../../helper/agent-stream";
 import { createAgentRunFileLogger } from "../../helper/file-logger";
-import {
-  defaultVisualReport,
-  runLesson2WithStream,
-  type ContentStrategyBrief,
-  type Lesson2StreamEvent,
-} from "./agent";
+import { defaultVisualReport, run, type ContentStrategyBrief } from "./agent";
 
 type RunStatus = "idle" | "running" | "done" | "error";
 
@@ -24,26 +19,27 @@ function App() {
   const [status, setStatus] = useState<RunStatus>("idle");
   const [currentStep, setCurrentStep] = useState("准备开始执行 lesson2...");
   const [logFilePath, setLogFilePath] = useState<string | null>(null);
-  const [prettyLogFilePath, setPrettyLogFilePath] = useState<string | null>(null);
+  const [prettyLogFilePath, setPrettyLogFilePath] = useState<string | null>(
+    null,
+  );
   const [brief, setBrief] = useState<ContentStrategyBrief | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     setStatus("running");
 
-    const fileLogger = createAgentRunFileLogger<Lesson2StreamEvent, ContentStrategyBrief>({
+    const fileLogger = createAgentRunFileLogger<ContentStrategyBrief>({
       logDir: path.join(__dirname, "logs"),
       runName: "lesson2",
       format: "both",
-      normalizeEvent: normalizeAgentStreamEventForLog,
     });
     setLogFilePath(fileLogger.logFilePath);
     setPrettyLogFilePath(fileLogger.prettyLogFilePath ?? null);
     fileLogger.writeRunStart({ report: defaultVisualReport });
 
-    runLesson2WithStream(defaultVisualReport, (event) => {
+    run(defaultVisualReport, (event) => {
       setCurrentStep(formatAgentStreamEvent(event));
-      fileLogger.writeEvent(event);
+      fileLogger.writeEvent(normalizeAgentStreamEventForLog(event));
     })
       .then((result) => {
         fileLogger.writeRunEnd({
@@ -125,11 +121,20 @@ function RunningView({
   prettyLogFilePath: string | null;
 }) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="blue" paddingX={2} paddingY={1}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="blue"
+      paddingX={2}
+      paddingY={1}
+    >
       <Text color="blue" bold>
         正在执行 lesson2 结构化内容策略任务
       </Text>
-      <LogFilePathView logFilePath={logFilePath} prettyLogFilePath={prettyLogFilePath} />
+      <LogFilePathView
+        logFilePath={logFilePath}
+        prettyLogFilePath={prettyLogFilePath}
+      />
       <Newline />
       <Text>{currentStep}</Text>
     </Box>
@@ -146,12 +151,21 @@ function ErrorView({
   prettyLogFilePath: string | null;
 }) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="red" paddingX={2} paddingY={1}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="red"
+      paddingX={2}
+      paddingY={1}
+    >
       <Text color="red" bold>
         执行失败
       </Text>
       <Text>{error?.message ?? "未知错误"}</Text>
-      <LogFilePathView logFilePath={logFilePath} prettyLogFilePath={prettyLogFilePath} />
+      <LogFilePathView
+        logFilePath={logFilePath}
+        prettyLogFilePath={prettyLogFilePath}
+      />
     </Box>
   );
 }
@@ -166,11 +180,20 @@ function ContentStrategyBriefView({
   prettyLogFilePath: string | null;
 }) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={2} paddingY={1}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="cyan"
+      paddingX={2}
+      paddingY={1}
+    >
       <Text color="cyan" bold>
         lesson2 内容策略简报
       </Text>
-      <LogFilePathView logFilePath={logFilePath} prettyLogFilePath={prettyLogFilePath} />
+      <LogFilePathView
+        logFilePath={logFilePath}
+        prettyLogFilePath={prettyLogFilePath}
+      />
       <Newline />
       <Field label="素材评估" value={brief.inputEvaluation} />
       <Field label="目标受众画像" value={brief.targetAudiencePersona} />
@@ -224,7 +247,9 @@ function LogFilePathView({
 
   return (
     <Box flexDirection="column">
-      {prettyLogFilePath ? <Text color="gray">格式化日志：{prettyLogFilePath}</Text> : null}
+      {prettyLogFilePath ? (
+        <Text color="gray">格式化日志：{prettyLogFilePath}</Text>
+      ) : null}
       {logFilePath ? <Text color="gray">JSONL 日志：{logFilePath}</Text> : null}
     </Box>
   );

@@ -32,18 +32,19 @@ function App() {
     seo_optimization: "pending",
   });
   const [logFilePath, setLogFilePath] = useState<string | null>(null);
-  const [prettyLogFilePath, setPrettyLogFilePath] = useState<string | null>(null);
+  const [prettyLogFilePath, setPrettyLogFilePath] = useState<string | null>(
+    null,
+  );
   const [result, setResult] = useState<Lesson3WorkflowResult | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     setStatus("running");
 
-    const fileLogger = createAgentRunFileLogger<Lesson3WorkflowEvent, Lesson3WorkflowResult>({
+    const fileLogger = createAgentRunFileLogger<Lesson3WorkflowResult>({
       logDir: path.join(__dirname, "logs"),
       runName: "lesson3",
       format: "both",
-      normalizeEvent: normalizeLesson3WorkflowEventForLog,
     });
     setLogFilePath(fileLogger.logFilePath);
     setPrettyLogFilePath(fileLogger.prettyLogFilePath ?? null);
@@ -52,7 +53,7 @@ function App() {
     runLesson3WorkflowWithStream(defaultVisualReport, (event) => {
       setCurrentStep(formatLesson3WorkflowEvent(event));
       updateStepState(event, setStepState);
-      fileLogger.writeEvent(event);
+      fileLogger.writeEvent(normalizeLesson3WorkflowEventForLog(event));
     })
       .then((workflowResult) => {
         fileLogger.writeRunEnd({
@@ -138,11 +139,20 @@ function RunningView({
   prettyLogFilePath: string | null;
 }) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="blue" paddingX={2} paddingY={1}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="blue"
+      paddingX={2}
+      paddingY={1}
+    >
       <Text color="blue" bold>
         正在执行 lesson3 Sequential Workflow
       </Text>
-      <LogFilePathView logFilePath={logFilePath} prettyLogFilePath={prettyLogFilePath} />
+      <LogFilePathView
+        logFilePath={logFilePath}
+        prettyLogFilePath={prettyLogFilePath}
+      />
       <Newline />
       <StepList stepState={stepState} />
       <Newline />
@@ -163,12 +173,21 @@ function ErrorView({
   prettyLogFilePath: string | null;
 }) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="red" paddingX={2} paddingY={1}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="red"
+      paddingX={2}
+      paddingY={1}
+    >
       <Text color="red" bold>
         执行失败
       </Text>
       <Text>{error?.message ?? "未知错误"}</Text>
-      <LogFilePathView logFilePath={logFilePath} prettyLogFilePath={prettyLogFilePath} />
+      <LogFilePathView
+        logFilePath={logFilePath}
+        prettyLogFilePath={prettyLogFilePath}
+      />
       <StepList stepState={stepState} />
     </Box>
   );
@@ -184,11 +203,20 @@ function WorkflowResultView({
   prettyLogFilePath: string | null;
 }) {
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="cyan" paddingX={2} paddingY={1}>
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="cyan"
+      paddingX={2}
+      paddingY={1}
+    >
       <Text color="cyan" bold>
         lesson3 SEO 优化最终报告
       </Text>
-      <LogFilePathView logFilePath={logFilePath} prettyLogFilePath={prettyLogFilePath} />
+      <LogFilePathView
+        logFilePath={logFilePath}
+        prettyLogFilePath={prettyLogFilePath}
+      />
       <Newline />
       <Field label="优化后的标题" value={result.finalReport.optimizedTitle} />
       <Field label="优化后的正文" value={result.finalReport.optimizedContent} />
@@ -201,7 +229,8 @@ function WorkflowResultView({
         {result.tasksOutput.map((taskOutput, index) => (
           <Text key={taskOutput.taskName}>
             <Text color="gray"> {index + 1}. </Text>
-            {taskOutput.taskName} / {taskOutput.outputType} / {JSON.stringify(taskOutput.structuredResponse).length} 字符
+            {taskOutput.taskName} / {taskOutput.outputType} /{" "}
+            {JSON.stringify(taskOutput.structuredResponse).length} 字符
           </Text>
         ))}
       </Box>
@@ -220,7 +249,8 @@ function StepList({ stepState }: { stepState: StepState }) {
     <Box flexDirection="column">
       {steps.map((step, index) => (
         <Text key={step}>
-          [{index + 1}/3] {getStepLabel(step)} {formatStepStatus(stepState[step])}
+          [{index + 1}/3] {getStepLabel(step)}{" "}
+          {formatStepStatus(stepState[step])}
         </Text>
       ))}
     </Box>
@@ -267,7 +297,9 @@ function LogFilePathView({
 
   return (
     <Box flexDirection="column">
-      {prettyLogFilePath ? <Text color="gray">格式化日志：{prettyLogFilePath}</Text> : null}
+      {prettyLogFilePath ? (
+        <Text color="gray">格式化日志：{prettyLogFilePath}</Text>
+      ) : null}
       {logFilePath ? <Text color="gray">JSONL 日志：{logFilePath}</Text> : null}
     </Box>
   );

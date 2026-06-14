@@ -14,7 +14,6 @@ import {
   createStructuredResponseEvent,
   createToolCallsEvent,
   getToolCalls,
-  type AgentStreamEvent,
   type AgentStreamEventHandler,
 } from "../../helper/agent-stream";
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
@@ -38,9 +37,7 @@ export const ImageAnalysisSchema = z.object({
   visualDetails: z
     .array(z.string())
     .min(3)
-    .describe(
-      "【细节点列表】列出画面中容易被忽略但具象的元素，至少 3 个。",
-    ),
+    .describe("【细节点列表】列出画面中容易被忽略但具象的元素，至少 3 个。"),
   imageQualityScore: z
     .string()
     .describe(
@@ -48,15 +45,10 @@ export const ImageAnalysisSchema = z.object({
     ),
   highlightFeature: z
     .string()
-    .describe(
-      "【突出特点】这张图最抓人眼球的一个视觉锚点 Visual Hook。",
-    ),
+    .describe("【突出特点】这张图最抓人眼球的一个视觉锚点 Visual Hook。"),
 });
 
 export type ImageAnalysis = z.infer<typeof ImageAnalysisSchema>;
-
-export type ImageAnalysisStreamEvent = AgentStreamEvent<ImageAnalysis>;
-export type ImageAnalysisStreamEventHandler = AgentStreamEventHandler<ImageAnalysis>;
 
 export const defaultImagePath = fileURLToPath(
   new URL("./20260202161329_150_6.jpg", import.meta.url),
@@ -170,7 +162,7 @@ export function createImageAnalysisAgent() {
 
 export async function runImageAnalysisWithStream(
   imagePath: string,
-  onEvent?: ImageAnalysisStreamEventHandler,
+  onEvent?: AgentStreamEventHandler,
 ): Promise<ImageAnalysis> {
   const imageAnalysisAgent = createImageAnalysisAgent();
   const stream = await imageAnalysisAgent.stream(

@@ -106,7 +106,7 @@ async function runVisualEditPlanPhase(
 
   const imageIdToEditPlanResult = new Map<number, ImageEditPlan>();
 
-  taskResults.forEach((result, index) => {
+  taskResults.forEach((result) => {
     if (result.status === "fulfilled") {
       try {
         const parsed = ImageEditPlanSchema.parse(

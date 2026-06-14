@@ -1,58 +1,65 @@
-import path from "node:path";
-import url from "node:url";
 import { useEffect, useState } from "react";
-import { Box, Newline, render, Text, useApp } from "ink";
-import { createAgentRunFileLogger } from "../../helper/file-logger";
+import { Box, Newline, Text, useApp } from "ink";
 import {
   formatAgentStreamEvent,
   normalizeAgentStreamEventForLog,
-} from "../../helper/agent-stream";
+  type AgentStreamEventHandler,
+} from "../helper/agent-stream";
 import {
-  defaultImagePath,
-  runImageAnalysisWithStream,
-  type ImageAnalysis,
-} from "./agent";
+  createAgentRunFileLogger,
+  type LogFormat,
+} from "../helper/file-logger";
+// import { userPrompt, run } from "./agent";
 
 type RunStatus = "idle" | "running" | "done" | "error";
 
-const imagePath = process.argv[2] ?? defaultImagePath;
+// const input = process.argv[2] ?? "今天北京天气怎么样";
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-function App() {
+interface RunResult {
+  type: string | undefined;
+  message: string | undefined;
+}
+interface AppProps {
+  input: string;
+  runName: string;
+  logDir: string;
+  logFormat: LogFormat;
+  run: (input: string, onEvent?: AgentStreamEventHandler) => Promise<RunResult>;
+}
+export const App: React.FC<AppProps> = (props) => {
   const { exit } = useApp();
   const [status, setStatus] = useState<RunStatus>("idle");
-  const [currentStep, setCurrentStep] = useState("准备开始分析图片...");
+  const [currentStep, setCurrentStep] = useState("开始执行...");
   const [logFilePath, setLogFilePath] = useState<string | null>(null);
   const [prettyLogFilePath, setPrettyLogFilePath] = useState<string | null>(
     null,
   );
-  const [analysis, setAnalysis] = useState<ImageAnalysis | null>(null);
+  const [result, setResult] = useState<RunResult | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     setStatus("running");
 
-    const fileLogger = createAgentRunFileLogger<ImageAnalysis>({
-      logDir: path.join(__dirname, "logs"),
-      runName: "lesson4",
-      format: "both",
+    const fileLogger = createAgentRunFileLogger({
+      logDir: props.logDir,
+      runName: props.runName,
+      format: props.logFormat,
     });
     setLogFilePath(fileLogger.logFilePath);
     setPrettyLogFilePath(fileLogger.prettyLogFilePath ?? null);
-    fileLogger.writeRunStart({ imagePath });
+    fileLogger.writeRunStart({ input: props.input });
 
-    runImageAnalysisWithStream(imagePath, (event) => {
-      setCurrentStep(formatAgentStreamEvent(event));
-      fileLogger.writeEvent(normalizeAgentStreamEventForLog(event));
-    })
-      .then((result) => {
+    props
+      .run(props.input, (event) => {
+        setCurrentStep(formatAgentStreamEvent(event));
+        fileLogger.writeEvent(normalizeAgentStreamEventForLog(event));
+      })
+      .then((lessonResult) => {
         fileLogger.writeRunEnd({
           status: "success",
-          result,
+          result: lessonResult,
         });
-        setAnalysis(result);
+        setResult(lessonResult);
         setStatus("done");
       })
       .catch((caughtError: unknown) => {
@@ -87,7 +94,7 @@ function App() {
   if (status === "idle" || status === "running") {
     return (
       <RunningView
-        imagePath={imagePath}
+        input={props.input}
         currentStep={currentStep}
         logFilePath={logFilePath}
         prettyLogFilePath={prettyLogFilePath}
@@ -105,26 +112,26 @@ function App() {
     );
   }
 
-  if (!analysis) {
-    return <Text color="red">未获取到结构化输出</Text>;
+  if (!result) {
+    return <Text color="red">未获取到输出</Text>;
   }
 
   return (
-    <ImageAnalysisReport
-      analysis={analysis}
+    <Lesson1ResultView
+      result={result}
       logFilePath={logFilePath}
       prettyLogFilePath={prettyLogFilePath}
     />
   );
-}
+};
 
 function RunningView({
-  imagePath: currentImagePath,
+  input: currentInput,
   currentStep,
   logFilePath,
   prettyLogFilePath,
 }: {
-  imagePath: string;
+  input: string;
   currentStep: string;
   logFilePath: string | null;
   prettyLogFilePath: string | null;
@@ -138,9 +145,9 @@ function RunningView({
       paddingY={1}
     >
       <Text color="blue" bold>
-        正在执行多模态视觉分析任务
+        正在执行
       </Text>
-      <Text color="gray">图片路径：{currentImagePath}</Text>
+      <Text color="gray">输入：{currentInput}</Text>
       <LogFilePathView
         logFilePath={logFilePath}
         prettyLogFilePath={prettyLogFilePath}
@@ -180,12 +187,12 @@ function ErrorView({
   );
 }
 
-function ImageAnalysisReport({
-  analysis,
+function Lesson1ResultView({
+  result,
   logFilePath,
   prettyLogFilePath,
 }: {
-  analysis: ImageAnalysis;
+  result: RunResult;
   logFilePath: string | null;
   prettyLogFilePath: string | null;
 }) {
@@ -198,44 +205,23 @@ function ImageAnalysisReport({
       paddingY={1}
     >
       <Text color="cyan" bold>
-        多模态视觉分析报告
+        内容输出
       </Text>
       <LogFilePathView
         logFilePath={logFilePath}
         prettyLogFilePath={prettyLogFilePath}
       />
-
       <Newline />
-
-      <Field label="图片文件名" value={analysis.fileName} />
-      <Field label="主体内容描述" value={analysis.subjectDescription} />
-      <Field label="风格氛围" value={analysis.atmosphereVibe} />
-
+      <Text color="yellow" bold>
+        最终消息类型
+      </Text>
+      <Text>{result.type ?? "unknown"}</Text>
       <Box flexDirection="column" marginTop={1}>
         <Text color="yellow" bold>
-          视觉细节列表
+          最终输出
         </Text>
-        {analysis.visualDetails.map((detail, index) => (
-          <Text key={`${index}-${detail}`}>
-            <Text color="gray"> {index + 1}. </Text>
-            {detail}
-          </Text>
-        ))}
+        <Text>{formatContent(result.message)}</Text>
       </Box>
-
-      <Field label="质量评分" value={analysis.imageQualityScore} />
-      <Field label="视觉锚点" value={analysis.highlightFeature} />
-    </Box>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <Box flexDirection="column" marginTop={1}>
-      <Text color="yellow" bold>
-        {label}
-      </Text>
-      <Text>{value}</Text>
     </Box>
   );
 }
@@ -261,4 +247,8 @@ function LogFilePathView({
   );
 }
 
-render(<App />);
+function formatContent(content: unknown) {
+  return typeof content === "string"
+    ? content
+    : JSON.stringify(content, null, 2);
+}

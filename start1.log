@@ -1,0 +1,287 @@
+log {
+  "type": "run_started",
+  "graphName": "root",
+  "timestamp": 1781405730726
+}
+log {
+  "type": "node_started",
+  "nodeName": "model_request",
+  "namespace": [
+    "model_request:0938c39e-21ee-503c-a45f-9e283630cfb9"
+  ],
+  "timestamp": 1781405734625
+}
+log {
+  "type": "llm_finished",
+  "node": "model_request",
+  "runId": "019ec40e-47b7-75f6-a295-6f000a25f1b2",
+  "model": "qwen3.7-plus",
+  "finishReason": "tool_calls",
+  "tokenUsage": {
+    "promptTokens": 461,
+    "completionTokens": 133,
+    "totalTokens": 594
+  },
+  "timestamp": 1781405734627
+}
+log {
+  "type": "tool_planned",
+  "node": "model_request",
+  "runId": "019ec40e-47b7-75f6-a295-6f000a25f1b2",
+  "toolCallId": "call_3f57a2f2269240fe882fd7a3",
+  "toolName": "get_weather",
+  "args": {
+    "city": "北京"
+  },
+  "timestamp": 1781405734627
+}
+log {
+  "type": "node_finished",
+  "nodeName": "model_request",
+  "namespace": [
+    "model_request:0938c39e-21ee-503c-a45f-9e283630cfb9"
+  ],
+  "timestamp": 1781405734638
+}
+log {
+  "type": "node_started",
+  "nodeName": "tools",
+  "namespace": [
+    "tools:0d71d899-13e1-5381-a398-55719fc097ba"
+  ],
+  "timestamp": 1781405734638
+}
+log {
+  "type": "tool_started",
+  "toolCallId": "call_3f57a2f2269240fe882fd7a3",
+  "toolName": "get_weather",
+  "input": {
+    "city": "北京"
+  },
+  "timestamp": 1781405734638
+}
+log {
+  "type": "tool_finished",
+  "toolCallId": "call_3f57a2f2269240fe882fd7a3",
+  "output": {
+    "lc": 1,
+    "type": "constructor",
+    "id": [
+      "langchain_core",
+      "messages",
+      "ToolMessage"
+    ],
+    "kwargs": {
+      "status": "success",
+      "content": "北京 当前天气: 晴, 气温: 23摄氏度, 东风3级, 相对湿度: 67, 报告时间: 5 分钟前发布",
+      "tool_call_id": "call_3f57a2f2269240fe882fd7a3",
+      "name": "get_weather",
+      "metadata": {
+        "versions": {
+          "@langchain/core": "1.1.48"
+        }
+      },
+      "additional_kwargs": {},
+      "response_metadata": {}
+    }
+  },
+  "durationMs": 622,
+  "timestamp": 1781405735260
+}
+log {
+  "type": "node_finished",
+  "nodeName": "tools",
+  "namespace": [
+    "tools:0d71d899-13e1-5381-a398-55719fc097ba"
+  ],
+  "timestamp": 1781405735263
+}
+log {
+  "type": "node_started",
+  "nodeName": "model_request",
+  "namespace": [
+    "model_request:4c17dfe9-9aaa-5e84-bcd0-49bf4585ee9d"
+  ],
+  "timestamp": 1781405746619
+}
+log {
+  "type": "llm_finished",
+  "node": "model_request",
+  "runId": "019ec40e-595e-77be-8c8b-fadb83bd09e2",
+  "model": "qwen3.7-plus",
+  "finishReason": "tool_calls",
+  "tokenUsage": {
+    "promptTokens": 541,
+    "completionTokens": 381,
+    "totalTokens": 922
+  },
+  "timestamp": 1781405746621
+}
+log {
+  "type": "tool_planned",
+  "node": "model_request",
+  "runId": "019ec40e-595e-77be-8c8b-fadb83bd09e2",
+  "toolCallId": "call_ef5c3fdd612e4395b533aa2f",
+  "toolName": "extract-2",
+  "args": {
+    "city": "北京",
+    "weather": "☀️ 晴朗宜人 | 气温23°C | 东风3级 | 湿度67%\n\n📋 天气分析：\n今天北京天空湛蓝，阳光明媚，气温适中，是一个非常舒适的晴天！\n\n👔 穿衣建议：\n气温23°C，体感舒适宜人。建议穿着薄款长袖衬衫、T恤搭配轻薄外套，早晚温差时可适当加件薄衫。\n\n🏃 适宜运动：\n天气晴好，非常适合户外活动！推荐晨跑、骑行、公园散步、打羽毛球等。东风3级风力适中，不影响户外运动。\n\n☂️ 是否带伞：\n晴天无雨，无需带伞。但紫外线较强，建议携带遮阳伞或做好防晒措施（涂防晒霜、戴帽子、墨镜）。\n\n💡 温馨提示：\n湿度67%较为适中，空气清新，适合开窗通风。外出注意补水防晒，享受这美好的春日时光吧！🌸"
+  },
+  "timestamp": 1781405746621
+}
+log {
+  "type": "llm_finished",
+  "node": "model_request",
+  "runId": "019ec40e-595e-77be-8c8b-f470b67d0b56",
+  "timestamp": 1781405746624
+}
+log {
+  "type": "structured_response",
+  "response": {
+    "city": "北京",
+    "weather": "☀️ 晴朗宜人 | 气温23°C | 东风3级 | 湿度67%\n\n📋 天气分析：\n今天北京天空湛蓝，阳光明媚，气温适中，是一个非常舒适的晴天！\n\n👔 穿衣建议：\n气温23°C，体感舒适宜人。建议穿着薄款长袖衬衫、T恤搭配轻薄外套，早晚温差时可适当加件薄衫。\n\n🏃 适宜运动：\n天气晴好，非常适合户外活动！推荐晨跑、骑行、公园散步、打羽毛球等。东风3级风力适中，不影响户外运动。\n\n☂️ 是否带伞：\n晴天无雨，无需带伞。但紫外线较强，建议携带遮阳伞或做好防晒措施（涂防晒霜、戴帽子、墨镜）。\n\n💡 温馨提示：\n湿度67%较为适中，空气清新，适合开窗通风。外出注意补水防晒，享受这美好的春日时光吧！🌸"
+  },
+  "timestamp": 1781405746624
+}
+log {
+  "type": "node_finished",
+  "nodeName": "model_request",
+  "namespace": [
+    "model_request:4c17dfe9-9aaa-5e84-bcd0-49bf4585ee9d"
+  ],
+  "timestamp": 1781405746624
+}
+log {
+  "type": "run_finished",
+  "graphName": "root",
+  "timestamp": 1781405746625
+}
+finalState {
+  messages: [
+    HumanMessage {
+  "id": "9aae48ba-cc0f-4dff-9aab-88e01f4d2ba5",
+  "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+  "additional_kwargs": {},
+  "response_metadata": {}
+}, AIMessage {
+  "id": "run-019ec40e-47b7-75f6-a295-6f000a25f1b2",
+  "content": "",
+  "name": "model",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 461,
+      "completionTokens": 133,
+      "totalTokens": 594
+    },
+    "finish_reason": "tool_calls",
+    "id": "chatcmpl-ba89d0b8-31a8-980e-9658-77e2627d103c",
+    "usage": {
+      "total_tokens": 594,
+      "completion_tokens": 133,
+      "prompt_tokens": 461,
+      "completion_tokens_details": {
+        "reasoning_tokens": 103,
+        "text_tokens": 133
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 461
+      }
+    },
+    "raw_tool_calls": [
+      {
+        "index": 0,
+        "id": "call_3f57a2f2269240fe882fd7a3",
+        "type": "function",
+        "function": "[Object]"
+      }
+    ]
+  },
+  "tool_calls": [
+    {
+      "id": "call_3f57a2f2269240fe882fd7a3",
+      "name": "get_weather",
+      "args": {
+        "city": "北京"
+      },
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": []
+}, ToolMessage {
+  "id": "2bdd18ef-1244-4a15-bbb2-8c71acfa6789",
+  "content": "北京 当前天气: 晴, 气温: 23摄氏度, 东风3级, 相对湿度: 67, 报告时间: 5 分钟前发布",
+  "name": "get_weather",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_call_id": "call_3f57a2f2269240fe882fd7a3"
+}, AIMessage {
+  "id": "run-019ec40e-595e-77be-8c8b-fadb83bd09e2",
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 541,
+      "completionTokens": 381,
+      "totalTokens": 922
+    },
+    "finish_reason": "tool_calls",
+    "id": "chatcmpl-4692902f-dea0-9282-8244-ff352526556c",
+    "usage": {
+      "total_tokens": 922,
+      "completion_tokens": 381,
+      "prompt_tokens": 541,
+      "completion_tokens_details": {
+        "reasoning_tokens": 139,
+        "text_tokens": 381
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 541
+      }
+    },
+    "raw_tool_calls": [
+      {
+        "index": 0,
+        "id": "call_ef5c3fdd612e4395b533aa2f",
+        "type": "function",
+        "function": "[Object]"
+      }
+    ]
+  },
+  "tool_calls": [
+    {
+      "id": "call_ef5c3fdd612e4395b533aa2f",
+      "name": "extract-2",
+      "args": {
+        "city": "北京",
+        "weather": "☀️ 晴朗宜人 | 气温23°C | 东风3级 | 湿度67%\n\n📋 天气分析：\n今天北京天空湛蓝，阳光明媚，气温适中，是一个非常舒适的晴天！\n\n👔 穿衣建议：\n气温23°C，体感舒适宜人。建议穿着薄款长袖衬衫、T恤搭配轻薄外套，早晚温差时可适当加件薄衫。\n\n🏃 适宜运动：\n天气晴好，非常适合户外活动！推荐晨跑、骑行、公园散步、打羽毛球等。东风3级风力适中，不影响户外运动。\n\n☂️ 是否带伞：\n晴天无雨，无需带伞。但紫外线较强，建议携带遮阳伞或做好防晒措施（涂防晒霜、戴帽子、墨镜）。\n\n💡 温馨提示：\n湿度67%较为适中，空气清新，适合开窗通风。外出注意补水防晒，享受这美好的春日时光吧！🌸"
+      },
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": []
+}, ToolMessage {
+  "id": "e08c949f-c642-4e96-8dbf-2a7577279972",
+  "content": "{\"city\":\"北京\",\"weather\":\"☀️ 晴朗宜人 | 气温23°C | 东风3级 | 湿度67%\\n\\n📋 天气分析：\\n今天北京天空湛蓝，阳光明媚，气温适中，是一个非常舒适的晴天！\\n\\n👔 穿衣建议：\\n气温23°C，体感舒适宜人。建议穿着薄款长袖衬衫、T恤搭配轻薄外套，早晚温差时可适当加件薄衫。\\n\\n🏃 适宜运动：\\n天气晴好，非常适合户外活动！推荐晨跑、骑行、公园散步、打羽毛球等。东风3级风力适中，不影响户外运动。\\n\\n☂️ 是否带伞：\\n晴天无雨，无需带伞。但紫外线较强，建议携带遮阳伞或做好防晒措施（涂防晒霜、戴帽子、墨镜）。\\n\\n💡 温馨提示：\\n湿度67%较为适中，空气清新，适合开窗通风。外出注意补水防晒，享受这美好的春日时光吧！🌸\"}",
+  "name": "extract-2",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_call_id": "call_ef5c3fdd612e4395b533aa2f"
+}, AIMessage {
+  "id": "5d94d66f-246a-4d49-9de0-79837d06bcfa",
+  "content": "Returning structured response: {\"city\":\"北京\",\"weather\":\"☀️ 晴朗宜人 | 气温23°C | 东风3级 | 湿度67%\\n\\n📋 天气分析：\\n今天北京天空湛蓝，阳光明媚，气温适中，是一个非常舒适的晴天！\\n\\n👔 穿衣建议：\\n气温23°C，体感舒适宜人。建议穿着薄款长袖衬衫、T恤搭配轻薄外套，早晚温差时可适当加件薄衫。\\n\\n🏃 适宜运动：\\n天气晴好，非常适合户外活动！推荐晨跑、骑行、公园散步、打羽毛球等。东风3级风力适中，不影响户外运动。\\n\\n☂️ 是否带伞：\\n晴天无雨，无需带伞。但紫外线较强，建议携带遮阳伞或做好防晒措施（涂防晒霜、戴帽子、墨镜）。\\n\\n💡 温馨提示：\\n湿度67%较为适中，空气清新，适合开窗通风。外出注意补水防晒，享受这美好的春日时光吧！🌸\"}",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_calls": [],
+  "invalid_tool_calls": []
+}
+  ],
+  structuredResponse: {
+    city: "北京",
+    weather: "☀️ 晴朗宜人 | 气温23°C | 东风3级 | 湿度67%\n\n📋 天气分析：\n今天北京天空湛蓝，阳光明媚，气温适中，是一个非常舒适的晴天！\n\n👔 穿衣建议：\n气温23°C，体感舒适宜人。建议穿着薄款长袖衬衫、T恤搭配轻薄外套，早晚温差时可适当加件薄衫。\n\n🏃 适宜运动：\n天气晴好，非常适合户外活动！推荐晨跑、骑行、公园散步、打羽毛球等。东风3级风力适中，不影响户外运动。\n\n☂️ 是否带伞：\n晴天无雨，无需带伞。但紫外线较强，建议携带遮阳伞或做好防晒措施（涂防晒霜、戴帽子、墨镜）。\n\n💡 温馨提示：\n湿度67%较为适中，空气清新，适合开窗通风。外出注意补水防晒，享受这美好的春日时光吧！🌸",
+  },
+}

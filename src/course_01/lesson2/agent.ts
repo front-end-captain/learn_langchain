@@ -5,7 +5,6 @@ import {
   createStructuredResponseEvent,
   createToolCallsEvent,
   getToolCalls,
-  type AgentStreamEvent,
   type AgentStreamEventHandler,
 } from "../../helper/agent-stream";
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
@@ -78,7 +77,6 @@ export const ContentStrategyBriefSchema = z.object({
 
 export type VisualAnalysisReport = z.infer<typeof VisualAnalysisReportSchema>;
 export type ContentStrategyBrief = z.infer<typeof ContentStrategyBriefSchema>;
-export type Lesson2StreamEvent = AgentStreamEvent<ContentStrategyBrief>;
 
 export const defaultVisualReport: VisualAnalysisReport = {
   userRawIntent: "想卖这个墨绿色马克杯，主打独居女生市场，强调氛围感和情绪价值",
@@ -151,10 +149,9 @@ const contentStrategistSystemPrompt = `
 4. 分步骤慢思考：你必须使用 Save_Intermediate_Product_Tool 工具保存中间结果
 
 **行为边界**：
-- 只负责输出策略大纲 Brief
+- 只负责输出策略大纲
 - 绝对不要撰写最终正文
 - 绝对不要撰写完整示例文案
-- 不允许委派给其他 Agent
 - 所有思考过程、工具调用和最终输出都必须使用中文
 
 **结构化输出要求**：
@@ -171,8 +168,8 @@ export function createContentStrategyTaskMessage(report: VisualAnalysisReport) {
 4. 使用 Save_Intermediate_Product_Tool 工具保存中间思考过程
 5. 最终输出必须符合 ContentStrategyBrief 结构
 
-视觉分析报告如下：
-${JSON.stringify(report, null, 2)}
+视觉分析报告如下(json格式)：
+${JSON.stringify(report)}
 
 **重要提示**：
 - 必须基于输入的视觉分析报告进行分析
@@ -197,9 +194,9 @@ export function createContentStrategistAgent() {
   });
 }
 
-export async function runLesson2WithStream(
+export async function run(
   report: VisualAnalysisReport,
-  onEvent?: AgentStreamEventHandler<ContentStrategyBrief>,
+  onEvent?: AgentStreamEventHandler,
 ): Promise<ContentStrategyBrief> {
   const parsedReport = VisualAnalysisReportSchema.parse(report);
   const contentStrategist = createContentStrategistAgent();

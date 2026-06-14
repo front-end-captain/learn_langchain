@@ -1,0 +1,2052 @@
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402723329,
+    "data": {
+      "event": "running",
+      "graph_name": "root"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "checkpoints",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402723351,
+    "data": {
+      "id": "1f167958-0c66-6630-8000-05dea8b0723e",
+      "step": 0,
+      "source": "loop"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 1,
+  "method": "values",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402723351,
+    "data": {
+      "messages": [
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "HumanMessage"
+          ],
+          "kwargs": {
+            "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 2,
+  "method": "tasks",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402723354,
+    "data": {
+      "id": "b58a2615-923e-5b5f-bb33-bf617efbc35a",
+      "name": "model_request",
+      "input": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "HumanMessage"
+            ],
+            "kwargs": {
+              "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+            }
+          }
+        ]
+      },
+      "triggers": [
+        "branch:to:model_request"
+      ],
+      "interrupts": []
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [
+      "model_request:b58a2615-923e-5b5f-bb33-bf617efbc35a"
+    ],
+    "timestamp": 1781402726772,
+    "data": {
+      "event": "started",
+      "graph_name": "model_request"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 3,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:b58a2615-923e-5b5f-bb33-bf617efbc35a"
+    ],
+    "timestamp": 1781402726771,
+    "node": "model_request",
+    "data": {
+      "event": "message-start",
+      "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+      "run_id": "019ec3e0-6418-71d9-b8b3-af8101e17cec"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 4,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:b58a2615-923e-5b5f-bb33-bf617efbc35a"
+    ],
+    "timestamp": 1781402726774,
+    "node": "model_request",
+    "data": {
+      "event": "message-finish",
+      "responseMetadata": {
+        "model": "qwen3.7-plus",
+        "tokenUsage": {
+          "promptTokens": 461,
+          "completionTokens": 114,
+          "totalTokens": 575
+        },
+        "finish_reason": "tool_calls",
+        "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+        "usage": {
+          "total_tokens": 575,
+          "completion_tokens": 114,
+          "prompt_tokens": 461,
+          "completion_tokens_details": {
+            "reasoning_tokens": 84,
+            "text_tokens": 114
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "text_tokens": 461
+          }
+        },
+        "raw_tool_calls": [
+          {
+            "index": 0,
+            "id": "call_64db15cd47e04151b02b538f",
+            "type": "function",
+            "function": {
+              "name": "get_weather",
+              "arguments": "{\"city\": \"北京\"}"
+            }
+          }
+        ]
+      },
+      "run_id": "019ec3e0-6418-71d9-b8b3-af8101e17cec"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 5,
+  "method": "updates",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402726779,
+    "node": "model_request",
+    "data": {
+      "node": "model_request",
+      "values": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "name": "get_weather",
+                  "args": {
+                    "city": "北京"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 461,
+                  "completionTokens": 114,
+                  "totalTokens": 575
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+                "usage": {
+                  "total_tokens": 575,
+                  "completion_tokens": 114,
+                  "prompt_tokens": 461,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 84,
+                    "text_tokens": 114
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 461
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_64db15cd47e04151b02b538f",
+                    "type": "function",
+                    "function": {
+                      "name": "get_weather",
+                      "arguments": "{\"city\": \"北京\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+              "name": "model"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 6,
+  "method": "tasks",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402726783,
+    "data": {
+      "id": "b58a2615-923e-5b5f-bb33-bf617efbc35a",
+      "name": "model_request",
+      "result": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "name": "get_weather",
+                  "args": {
+                    "city": "北京"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 461,
+                  "completionTokens": 114,
+                  "totalTokens": 575
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+                "usage": {
+                  "total_tokens": 575,
+                  "completion_tokens": 114,
+                  "prompt_tokens": 461,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 84,
+                    "text_tokens": 114
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 461
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_64db15cd47e04151b02b538f",
+                    "type": "function",
+                    "function": {
+                      "name": "get_weather",
+                      "arguments": "{\"city\": \"北京\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+              "name": "model"
+            }
+          }
+        ]
+      },
+      "interrupts": []
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [
+      "model_request:b58a2615-923e-5b5f-bb33-bf617efbc35a"
+    ],
+    "timestamp": 1781402726784,
+    "data": {
+      "event": "completed",
+      "graph_name": "model_request"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 7,
+  "method": "checkpoints",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402726784,
+    "data": {
+      "id": "1f167958-2d21-64b0-8001-a3855db8af47",
+      "step": 1,
+      "source": "loop"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 8,
+  "method": "values",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402726784,
+    "data": {
+      "messages": [
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "HumanMessage"
+          ],
+          "kwargs": {
+            "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_64db15cd47e04151b02b538f",
+                "name": "get_weather",
+                "args": {
+                  "city": "北京"
+                },
+                "type": "tool_call"
+              }
+            ],
+            "response_metadata": {
+              "model": "qwen3.7-plus",
+              "tokenUsage": {
+                "promptTokens": 461,
+                "completionTokens": 114,
+                "totalTokens": 575
+              },
+              "finish_reason": "tool_calls",
+              "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+              "usage": {
+                "total_tokens": 575,
+                "completion_tokens": 114,
+                "prompt_tokens": 461,
+                "completion_tokens_details": {
+                  "reasoning_tokens": 84,
+                  "text_tokens": 114
+                },
+                "prompt_tokens_details": {
+                  "cached_tokens": 0,
+                  "text_tokens": 461
+                }
+              },
+              "raw_tool_calls": [
+                {
+                  "index": 0,
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "arguments": "{\"city\": \"北京\"}"
+                  }
+                }
+              ]
+            },
+            "invalid_tool_calls": [],
+            "additional_kwargs": {},
+            "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+            "name": "model"
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 9,
+  "method": "tasks",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402726785,
+    "data": {
+      "id": "70b29946-0dcc-5fd0-be65-ff1957337327",
+      "name": "tools",
+      "input": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "HumanMessage"
+            ],
+            "kwargs": {
+              "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "name": "get_weather",
+                  "args": {
+                    "city": "北京"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 461,
+                  "completionTokens": 114,
+                  "totalTokens": 575
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+                "usage": {
+                  "total_tokens": 575,
+                  "completion_tokens": 114,
+                  "prompt_tokens": 461,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 84,
+                    "text_tokens": 114
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 461
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_64db15cd47e04151b02b538f",
+                    "type": "function",
+                    "function": {
+                      "name": "get_weather",
+                      "arguments": "{\"city\": \"北京\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+              "name": "model"
+            }
+          }
+        ],
+        "lg_tool_call": {
+          "id": "call_64db15cd47e04151b02b538f",
+          "name": "get_weather",
+          "args": {
+            "city": "北京"
+          },
+          "type": "tool_call"
+        }
+      },
+      "triggers": [
+        "__pregel_push"
+      ],
+      "interrupts": []
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [
+      "tools:70b29946-0dcc-5fd0-be65-ff1957337327"
+    ],
+    "timestamp": 1781402726785,
+    "data": {
+      "event": "started",
+      "graph_name": "tools"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 10,
+  "method": "tools",
+  "params": {
+    "namespace": [
+      "tools:70b29946-0dcc-5fd0-be65-ff1957337327"
+    ],
+    "timestamp": 1781402726785,
+    "data": {
+      "event": "tool-started",
+      "tool_call_id": "call_64db15cd47e04151b02b538f",
+      "tool_name": "get_weather",
+      "input": "{\"city\":\"北京\"}"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 11,
+  "method": "tools",
+  "params": {
+    "namespace": [
+      "tools:70b29946-0dcc-5fd0-be65-ff1957337327"
+    ],
+    "timestamp": 1781402727064,
+    "data": {
+      "event": "tool-finished",
+      "tool_call_id": "call_64db15cd47e04151b02b538f",
+      "output": {
+        "lc": 1,
+        "type": "constructor",
+        "id": [
+          "langchain_core",
+          "messages",
+          "ToolMessage"
+        ],
+        "kwargs": {
+          "status": "success",
+          "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+          "tool_call_id": "call_64db15cd47e04151b02b538f",
+          "name": "get_weather",
+          "metadata": {
+            "versions": {
+              "@langchain/core": "1.1.48"
+            }
+          },
+          "additional_kwargs": {},
+          "response_metadata": {}
+        }
+      }
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 12,
+  "method": "updates",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402727065,
+    "node": "tools",
+    "data": {
+      "node": "tools",
+      "values": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "ToolMessage"
+            ],
+            "kwargs": {
+              "status": "success",
+              "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+              "tool_call_id": "call_64db15cd47e04151b02b538f",
+              "name": "get_weather",
+              "metadata": {
+                "versions": {
+                  "@langchain/core": "1.1.48"
+                }
+              },
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 13,
+  "method": "tasks",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402727066,
+    "data": {
+      "id": "70b29946-0dcc-5fd0-be65-ff1957337327",
+      "name": "tools",
+      "result": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "ToolMessage"
+            ],
+            "kwargs": {
+              "status": "success",
+              "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+              "tool_call_id": "call_64db15cd47e04151b02b538f",
+              "name": "get_weather",
+              "metadata": {
+                "versions": {
+                  "@langchain/core": "1.1.48"
+                }
+              },
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9"
+            }
+          }
+        ]
+      },
+      "interrupts": []
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [
+      "tools:70b29946-0dcc-5fd0-be65-ff1957337327"
+    ],
+    "timestamp": 1781402727067,
+    "data": {
+      "event": "completed",
+      "graph_name": "tools"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 14,
+  "method": "checkpoints",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402727067,
+    "data": {
+      "id": "1f167958-2fdb-6890-8002-e0c92d393231",
+      "step": 2,
+      "source": "loop"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 15,
+  "method": "values",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402727067,
+    "data": {
+      "messages": [
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "HumanMessage"
+          ],
+          "kwargs": {
+            "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_64db15cd47e04151b02b538f",
+                "name": "get_weather",
+                "args": {
+                  "city": "北京"
+                },
+                "type": "tool_call"
+              }
+            ],
+            "response_metadata": {
+              "model": "qwen3.7-plus",
+              "tokenUsage": {
+                "promptTokens": 461,
+                "completionTokens": 114,
+                "totalTokens": 575
+              },
+              "finish_reason": "tool_calls",
+              "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+              "usage": {
+                "total_tokens": 575,
+                "completion_tokens": 114,
+                "prompt_tokens": 461,
+                "completion_tokens_details": {
+                  "reasoning_tokens": 84,
+                  "text_tokens": 114
+                },
+                "prompt_tokens_details": {
+                  "cached_tokens": 0,
+                  "text_tokens": 461
+                }
+              },
+              "raw_tool_calls": [
+                {
+                  "index": 0,
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "arguments": "{\"city\": \"北京\"}"
+                  }
+                }
+              ]
+            },
+            "invalid_tool_calls": [],
+            "additional_kwargs": {},
+            "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+            "name": "model"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "ToolMessage"
+          ],
+          "kwargs": {
+            "status": "success",
+            "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+            "tool_call_id": "call_64db15cd47e04151b02b538f",
+            "name": "get_weather",
+            "metadata": {
+              "versions": {
+                "@langchain/core": "1.1.48"
+              }
+            },
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9"
+          }
+        }
+      ]
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 16,
+  "method": "tasks",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402727067,
+    "data": {
+      "id": "36910442-212b-539d-9bbd-eeb50f4720b4",
+      "name": "model_request",
+      "input": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "HumanMessage"
+            ],
+            "kwargs": {
+              "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "name": "get_weather",
+                  "args": {
+                    "city": "北京"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 461,
+                  "completionTokens": 114,
+                  "totalTokens": 575
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+                "usage": {
+                  "total_tokens": 575,
+                  "completion_tokens": 114,
+                  "prompt_tokens": 461,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 84,
+                    "text_tokens": 114
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 461
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_64db15cd47e04151b02b538f",
+                    "type": "function",
+                    "function": {
+                      "name": "get_weather",
+                      "arguments": "{\"city\": \"北京\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+              "name": "model"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "ToolMessage"
+            ],
+            "kwargs": {
+              "status": "success",
+              "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+              "tool_call_id": "call_64db15cd47e04151b02b538f",
+              "name": "get_weather",
+              "metadata": {
+                "versions": {
+                  "@langchain/core": "1.1.48"
+                }
+              },
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9"
+            }
+          }
+        ]
+      },
+      "triggers": [
+        "branch:to:model_request"
+      ],
+      "interrupts": []
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736525,
+    "data": {
+      "event": "started",
+      "graph_name": "model_request"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 17,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736525,
+    "node": "model_request",
+    "data": {
+      "event": "message-start",
+      "id": "run-019ec3e0-729a-7688-bf4e-402e1d40370d",
+      "run_id": "019ec3e0-729a-7688-bf4e-402e1d40370d"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 18,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736526,
+    "node": "model_request",
+    "data": {
+      "event": "message-finish",
+      "responseMetadata": {
+        "model": "qwen3.7-plus",
+        "tokenUsage": {
+          "promptTokens": 542,
+          "completionTokens": 189,
+          "totalTokens": 731
+        },
+        "finish_reason": "tool_calls",
+        "id": "chatcmpl-5623dd60-8b6b-9e9f-afc1-fdff61a1420a",
+        "usage": {
+          "total_tokens": 731,
+          "completion_tokens": 189,
+          "prompt_tokens": 542,
+          "completion_tokens_details": {
+            "reasoning_tokens": 122,
+            "text_tokens": 189
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "text_tokens": 542
+          }
+        },
+        "raw_tool_calls": [
+          {
+            "index": 0,
+            "id": "call_308f47ff43a447f5a0b1f1af",
+            "type": "function",
+            "function": {
+              "name": "extract-2",
+              "arguments": "{\"city\": \"北京\", \"weather\": \"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}"
+            }
+          }
+        ]
+      },
+      "run_id": "019ec3e0-729a-7688-bf4e-402e1d40370d"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 19,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736528,
+    "node": "model_request",
+    "data": {
+      "event": "message-start",
+      "id": "0f3c493b-7611-4ab5-874b-af1da5b2a426",
+      "run_id": "019ec3e0-729a-7688-bf4e-3d971198f351"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 20,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736529,
+    "node": "model_request",
+    "data": {
+      "event": "content-block-start",
+      "index": 0,
+      "content": {
+        "type": "text",
+        "text": ""
+      },
+      "run_id": "019ec3e0-729a-7688-bf4e-3d971198f351"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 21,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736529,
+    "node": "model_request",
+    "data": {
+      "event": "content-block-delta",
+      "index": 0,
+      "delta": {
+        "type": "text-delta",
+        "text": "Returning structured response: {\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}"
+      },
+      "run_id": "019ec3e0-729a-7688-bf4e-3d971198f351"
+    }
+  }
+}
+
+
+Returning structured response: {"city":"北京","weather":"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"}
+process {
+  "type": "event",
+  "seq": 22,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736532,
+    "node": "model_request",
+    "data": {
+      "event": "content-block-finish",
+      "index": 0,
+      "content": {
+        "type": "text",
+        "text": "Returning structured response: {\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}"
+      },
+      "run_id": "019ec3e0-729a-7688-bf4e-3d971198f351"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 23,
+  "method": "messages",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736532,
+    "node": "model_request",
+    "data": {
+      "event": "message-finish",
+      "responseMetadata": {},
+      "run_id": "019ec3e0-729a-7688-bf4e-3d971198f351"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 24,
+  "method": "updates",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402736532,
+    "node": "model_request",
+    "data": {
+      "node": "model_request",
+      "values": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "HumanMessage"
+            ],
+            "kwargs": {
+              "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "name": "get_weather",
+                  "args": {
+                    "city": "北京"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 461,
+                  "completionTokens": 114,
+                  "totalTokens": 575
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+                "usage": {
+                  "total_tokens": 575,
+                  "completion_tokens": 114,
+                  "prompt_tokens": 461,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 84,
+                    "text_tokens": 114
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 461
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_64db15cd47e04151b02b538f",
+                    "type": "function",
+                    "function": {
+                      "name": "get_weather",
+                      "arguments": "{\"city\": \"北京\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+              "name": "model"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "ToolMessage"
+            ],
+            "kwargs": {
+              "status": "success",
+              "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+              "tool_call_id": "call_64db15cd47e04151b02b538f",
+              "name": "get_weather",
+              "metadata": {
+                "versions": {
+                  "@langchain/core": "1.1.48"
+                }
+              },
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_308f47ff43a447f5a0b1f1af",
+                  "name": "extract-2",
+                  "args": {
+                    "city": "北京",
+                    "weather": "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 542,
+                  "completionTokens": 189,
+                  "totalTokens": 731
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-5623dd60-8b6b-9e9f-afc1-fdff61a1420a",
+                "usage": {
+                  "total_tokens": 731,
+                  "completion_tokens": 189,
+                  "prompt_tokens": 542,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 122,
+                    "text_tokens": 189
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 542
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_308f47ff43a447f5a0b1f1af",
+                    "type": "function",
+                    "function": {
+                      "name": "extract-2",
+                      "arguments": "{\"city\": \"北京\", \"weather\": \"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-729a-7688-bf4e-402e1d40370d"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "ToolMessage"
+            ],
+            "kwargs": {
+              "tool_call_id": "call_308f47ff43a447f5a0b1f1af",
+              "content": "{\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+              "name": "extract-2",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "b728a67a-27f6-4403-b7cd-3a2492b34807"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "Returning structured response: {\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+              "tool_calls": [],
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "0f3c493b-7611-4ab5-874b-af1da5b2a426"
+            }
+          }
+        ],
+        "structuredResponse": {
+          "city": "北京",
+          "weather": "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"
+        }
+      }
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 25,
+  "method": "tasks",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402736533,
+    "data": {
+      "id": "36910442-212b-539d-9bbd-eeb50f4720b4",
+      "name": "model_request",
+      "result": {
+        "messages": [
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "HumanMessage"
+            ],
+            "kwargs": {
+              "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "name": "get_weather",
+                  "args": {
+                    "city": "北京"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 461,
+                  "completionTokens": 114,
+                  "totalTokens": 575
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+                "usage": {
+                  "total_tokens": 575,
+                  "completion_tokens": 114,
+                  "prompt_tokens": 461,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 84,
+                    "text_tokens": 114
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 461
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_64db15cd47e04151b02b538f",
+                    "type": "function",
+                    "function": {
+                      "name": "get_weather",
+                      "arguments": "{\"city\": \"北京\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+              "name": "model"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "ToolMessage"
+            ],
+            "kwargs": {
+              "status": "success",
+              "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+              "tool_call_id": "call_64db15cd47e04151b02b538f",
+              "name": "get_weather",
+              "metadata": {
+                "versions": {
+                  "@langchain/core": "1.1.48"
+                }
+              },
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "",
+              "tool_calls": [
+                {
+                  "id": "call_308f47ff43a447f5a0b1f1af",
+                  "name": "extract-2",
+                  "args": {
+                    "city": "北京",
+                    "weather": "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"
+                  },
+                  "type": "tool_call"
+                }
+              ],
+              "response_metadata": {
+                "model": "qwen3.7-plus",
+                "tokenUsage": {
+                  "promptTokens": 542,
+                  "completionTokens": 189,
+                  "totalTokens": 731
+                },
+                "finish_reason": "tool_calls",
+                "id": "chatcmpl-5623dd60-8b6b-9e9f-afc1-fdff61a1420a",
+                "usage": {
+                  "total_tokens": 731,
+                  "completion_tokens": 189,
+                  "prompt_tokens": 542,
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 122,
+                    "text_tokens": 189
+                  },
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "text_tokens": 542
+                  }
+                },
+                "raw_tool_calls": [
+                  {
+                    "index": 0,
+                    "id": "call_308f47ff43a447f5a0b1f1af",
+                    "type": "function",
+                    "function": {
+                      "name": "extract-2",
+                      "arguments": "{\"city\": \"北京\", \"weather\": \"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}"
+                    }
+                  }
+                ]
+              },
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "id": "run-019ec3e0-729a-7688-bf4e-402e1d40370d"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "ToolMessage"
+            ],
+            "kwargs": {
+              "tool_call_id": "call_308f47ff43a447f5a0b1f1af",
+              "content": "{\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+              "name": "extract-2",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "b728a67a-27f6-4403-b7cd-3a2492b34807"
+            }
+          },
+          {
+            "lc": 1,
+            "type": "constructor",
+            "id": [
+              "langchain_core",
+              "messages",
+              "AIMessage"
+            ],
+            "kwargs": {
+              "content": "Returning structured response: {\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+              "tool_calls": [],
+              "invalid_tool_calls": [],
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "id": "0f3c493b-7611-4ab5-874b-af1da5b2a426"
+            }
+          }
+        ],
+        "structuredResponse": {
+          "city": "北京",
+          "weather": "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"
+        }
+      },
+      "interrupts": []
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [
+      "model_request:36910442-212b-539d-9bbd-eeb50f4720b4"
+    ],
+    "timestamp": 1781402736533,
+    "data": {
+      "event": "completed",
+      "graph_name": "model_request"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 26,
+  "method": "checkpoints",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402736533,
+    "data": {
+      "id": "1f167958-8a1a-6900-8003-c4414afa8f00",
+      "step": 3,
+      "source": "loop"
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 27,
+  "method": "values",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402736533,
+    "data": {
+      "messages": [
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "HumanMessage"
+          ],
+          "kwargs": {
+            "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_64db15cd47e04151b02b538f",
+                "name": "get_weather",
+                "args": {
+                  "city": "北京"
+                },
+                "type": "tool_call"
+              }
+            ],
+            "response_metadata": {
+              "model": "qwen3.7-plus",
+              "tokenUsage": {
+                "promptTokens": 461,
+                "completionTokens": 114,
+                "totalTokens": 575
+              },
+              "finish_reason": "tool_calls",
+              "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+              "usage": {
+                "total_tokens": 575,
+                "completion_tokens": 114,
+                "prompt_tokens": 461,
+                "completion_tokens_details": {
+                  "reasoning_tokens": 84,
+                  "text_tokens": 114
+                },
+                "prompt_tokens_details": {
+                  "cached_tokens": 0,
+                  "text_tokens": 461
+                }
+              },
+              "raw_tool_calls": [
+                {
+                  "index": 0,
+                  "id": "call_64db15cd47e04151b02b538f",
+                  "type": "function",
+                  "function": {
+                    "name": "get_weather",
+                    "arguments": "{\"city\": \"北京\"}"
+                  }
+                }
+              ]
+            },
+            "invalid_tool_calls": [],
+            "additional_kwargs": {},
+            "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+            "name": "model"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "ToolMessage"
+          ],
+          "kwargs": {
+            "status": "success",
+            "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+            "tool_call_id": "call_64db15cd47e04151b02b538f",
+            "name": "get_weather",
+            "metadata": {
+              "versions": {
+                "@langchain/core": "1.1.48"
+              }
+            },
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "",
+            "tool_calls": [
+              {
+                "id": "call_308f47ff43a447f5a0b1f1af",
+                "name": "extract-2",
+                "args": {
+                  "city": "北京",
+                  "weather": "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"
+                },
+                "type": "tool_call"
+              }
+            ],
+            "response_metadata": {
+              "model": "qwen3.7-plus",
+              "tokenUsage": {
+                "promptTokens": 542,
+                "completionTokens": 189,
+                "totalTokens": 731
+              },
+              "finish_reason": "tool_calls",
+              "id": "chatcmpl-5623dd60-8b6b-9e9f-afc1-fdff61a1420a",
+              "usage": {
+                "total_tokens": 731,
+                "completion_tokens": 189,
+                "prompt_tokens": 542,
+                "completion_tokens_details": {
+                  "reasoning_tokens": 122,
+                  "text_tokens": 189
+                },
+                "prompt_tokens_details": {
+                  "cached_tokens": 0,
+                  "text_tokens": 542
+                }
+              },
+              "raw_tool_calls": [
+                {
+                  "index": 0,
+                  "id": "call_308f47ff43a447f5a0b1f1af",
+                  "type": "function",
+                  "function": {
+                    "name": "extract-2",
+                    "arguments": "{\"city\": \"北京\", \"weather\": \"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}"
+                  }
+                }
+              ]
+            },
+            "invalid_tool_calls": [],
+            "additional_kwargs": {},
+            "id": "run-019ec3e0-729a-7688-bf4e-402e1d40370d"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "ToolMessage"
+          ],
+          "kwargs": {
+            "tool_call_id": "call_308f47ff43a447f5a0b1f1af",
+            "content": "{\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+            "name": "extract-2",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "b728a67a-27f6-4403-b7cd-3a2492b34807"
+          }
+        },
+        {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain_core",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "Returning structured response: {\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "id": "0f3c493b-7611-4ab5-874b-af1da5b2a426"
+          }
+        }
+      ],
+      "structuredResponse": {
+        "city": "北京",
+        "weather": "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"
+      }
+    }
+  }
+}
+
+
+
+process {
+  "type": "event",
+  "seq": 0,
+  "method": "lifecycle",
+  "params": {
+    "namespace": [],
+    "timestamp": 1781402736533,
+    "data": {
+      "event": "completed",
+      "graph_name": "root"
+    }
+  }
+}
+
+
+finalState {
+  messages: [
+    HumanMessage {
+  "id": "f1c71542-8fbe-48c8-bfee-e6a01f9077c3",
+  "content": "今天北京天气怎么样\n\n**输出要求**：\n最终结果必须符合 WeatherReport 结构。\n对于天气结果，可以添加一些天气的修饰词\n",
+  "additional_kwargs": {},
+  "response_metadata": {}
+}, AIMessage {
+  "id": "run-019ec3e0-6418-71d9-b8b3-af8101e17cec",
+  "content": "",
+  "name": "model",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 461,
+      "completionTokens": 114,
+      "totalTokens": 575
+    },
+    "finish_reason": "tool_calls",
+    "id": "chatcmpl-6d48f2a0-19a1-9386-bc3d-a105e87e7ed7",
+    "usage": {
+      "total_tokens": 575,
+      "completion_tokens": 114,
+      "prompt_tokens": 461,
+      "completion_tokens_details": {
+        "reasoning_tokens": 84,
+        "text_tokens": 114
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 461
+      }
+    },
+    "raw_tool_calls": [
+      {
+        "index": 0,
+        "id": "call_64db15cd47e04151b02b538f",
+        "type": "function",
+        "function": "[Object]"
+      }
+    ]
+  },
+  "tool_calls": [
+    {
+      "id": "call_64db15cd47e04151b02b538f",
+      "name": "get_weather",
+      "args": {
+        "city": "北京"
+      },
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": []
+}, ToolMessage {
+  "id": "8fd891a2-ac9e-4a09-8846-7db84aabdde9",
+  "content": "北京 当前天气: 晴, 气温: 22摄氏度, 东北风3级, 相对湿度: 71, 报告时间: 8 分钟前发布",
+  "name": "get_weather",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_call_id": "call_64db15cd47e04151b02b538f"
+}, AIMessage {
+  "id": "run-019ec3e0-729a-7688-bf4e-402e1d40370d",
+  "content": "",
+  "additional_kwargs": {},
+  "response_metadata": {
+    "model": "qwen3.7-plus",
+    "tokenUsage": {
+      "promptTokens": 542,
+      "completionTokens": 189,
+      "totalTokens": 731
+    },
+    "finish_reason": "tool_calls",
+    "id": "chatcmpl-5623dd60-8b6b-9e9f-afc1-fdff61a1420a",
+    "usage": {
+      "total_tokens": 731,
+      "completion_tokens": 189,
+      "prompt_tokens": 542,
+      "completion_tokens_details": {
+        "reasoning_tokens": 122,
+        "text_tokens": 189
+      },
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "text_tokens": 542
+      }
+    },
+    "raw_tool_calls": [
+      {
+        "index": 0,
+        "id": "call_308f47ff43a447f5a0b1f1af",
+        "type": "function",
+        "function": "[Object]"
+      }
+    ]
+  },
+  "tool_calls": [
+    {
+      "id": "call_308f47ff43a447f5a0b1f1af",
+      "name": "extract-2",
+      "args": {
+        "city": "北京",
+        "weather": "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中"
+      },
+      "type": "tool_call"
+    }
+  ],
+  "invalid_tool_calls": []
+}, ToolMessage {
+  "id": "b728a67a-27f6-4403-b7cd-3a2492b34807",
+  "content": "{\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+  "name": "extract-2",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_call_id": "call_308f47ff43a447f5a0b1f1af"
+}, AIMessage {
+  "id": "0f3c493b-7611-4ab5-874b-af1da5b2a426",
+  "content": "Returning structured response: {\"city\":\"北京\",\"weather\":\"晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中\"}",
+  "additional_kwargs": {},
+  "response_metadata": {},
+  "tool_calls": [],
+  "invalid_tool_calls": []
+}
+  ],
+  structuredResponse: {
+    city: "北京",
+    weather: "晴朗舒适，气温宜人22°C，东北风3级微风轻拂，相对湿度71%体感适中",
+  },
+}
