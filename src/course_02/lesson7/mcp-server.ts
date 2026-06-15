@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+// import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { type Transport } from "@modelcontextprotocol/sdk/shared/transport";
 import {
   CallToolRequestSchema,
   isInitializeRequest,
@@ -117,7 +119,10 @@ app.post("/mcp", async (req, res) => {
         return;
       }
 
-      logRequest("POST", `path=/mcp session=${sessionId} reuse-existing-session`);
+      logRequest(
+        "POST",
+        `path=/mcp session=${sessionId} reuse-existing-session`,
+      );
       await session.transport.handleRequest(req, res, req.body);
       return;
     }
@@ -157,7 +162,7 @@ app.post("/mcp", async (req, res) => {
     logRequest("POST", "path=/mcp creating-new-session");
     // SDK 的 StreamableHTTPServerTransport 声明在 exactOptionalPropertyTypes 下
     // 与 Server.connect() 期望的 Transport 类型不完全兼容，这里做一次窄化。
-    await server.connect(transport as Parameters<Server["connect"]>[0]);
+    await server.connect(transport as Transport);
     await transport.handleRequest(req, res, req.body);
   } catch (error) {
     logError(
@@ -219,7 +224,10 @@ app.delete("/mcp", async (req, res) => {
   }
 
   try {
-    logRequest("DELETE", `path=/mcp session=${sessionId} terminate-requested-by-client`);
+    logRequest(
+      "DELETE",
+      `path=/mcp session=${sessionId} terminate-requested-by-client`,
+    );
     await session.transport.handleRequest(req, res);
   } catch (error) {
     logError("DELETE", `path=/mcp session=${sessionId}`, error);

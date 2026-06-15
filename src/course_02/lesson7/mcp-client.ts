@@ -1,6 +1,7 @@
 import { loadMcpTools } from "@langchain/mcp-adapters";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { type Transport } from "@modelcontextprotocol/sdk/shared/transport";
 import { createAgent } from "langchain";
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
 
@@ -15,7 +16,7 @@ const client = new Client({
 try {
   // SDK 的 StreamableHTTPClientTransport 在 exactOptionalPropertyTypes 下
   // 与 Client.connect() 期望的 Transport 类型不完全兼容，这里做一次窄化。
-  await client.connect(transport as Parameters<Client["connect"]>[0]);
+  await client.connect(transport as Transport);
   const tools = await loadMcpTools("weather", client);
 
   const llm = new AliyunQwenChatModel({

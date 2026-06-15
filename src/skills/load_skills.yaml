@@ -1,0 +1,95 @@
+# Skill 清单：m2l16 Skills 生态课程演示
+#
+# type 字段区分 Skill 的执行方式：
+#   task      → 触发独立 Sub-Crew 在 AIO-Sandbox 中执行（需要代码运行）
+#   reference → 直接注入指令到调用方上下文，不启动 Sub-Crew（只读规范类）
+#
+# 💡 核心点：type 写在这里，不改 Anthropic 官方 SKILL.md 文件
+
+skills:
+  - name: pdf
+    path: ./pdf
+    type: task       # 需要代码执行（pypdf / pdfplumber）
+    enabled: true
+
+  - name: docx
+    path: ./docx
+    type: task       # 需要代码执行（docx-js / pandoc）
+    enabled: true
+
+  # m3l20：文件系统记忆 Skills
+  - name: memory-save
+    path: ./memory-save
+    type: task       # 写入 workspace/ 文件，需要沙盒 MCP 执行
+    enabled: true
+
+  # m4l25+：数字员工产出写入 Skill（产品规格文档、验收报告、技术设计等）
+  - name: write-output
+    path: ./write-output
+    type: task       # 写入 shared/workspace 产出文件，需要沙盒 MCP 执行
+    enabled: true
+
+  - name: skill-creator
+    path: ./skill-creator
+    type: task       # 写入 skills/ 目录，需要沙盒 MCP 执行
+    enabled: true
+
+  - name: memory-governance
+    path: ./memory-governance
+    type: task       # 扫描 + 报告 + 清理，需要沙盒 MCP 执行
+    enabled: true
+
+  # m4l25：团队角色体系 Skills（参考型，直接注入上下文）
+  - name: sop_manager
+    path: ./sop_manager
+    type: reference   # Manager 任务拆解 SOP，只读，不启动沙盒
+    enabled: true
+
+  - name: sop_dev
+    path: ./sop_dev
+    type: reference   # Dev 技术设计 SOP，只读，不启动沙盒
+    enabled: true
+
+  # m4l27：Human as 甲方 Skills
+  - name: requirements-discovery
+    path: ./requirements-discovery
+    type: reference   # 四维需求发现框架，直接注入 Manager Agent 上下文，不启动沙盒
+    enabled: true
+
+  - name: sop-creator
+    path: ./sop-creator
+    type: reference   # SOP 制定四要素框架，直接注入 Manager Agent 上下文，不启动沙盒
+    enabled: true
+
+  - name: sop-selector
+    path: ./sop-selector
+    type: reference   # SOP 选择三步框架，直接注入 Manager Agent 上下文，不启动沙盒
+    enabled: true
+
+  # m4l26：任务链与信息传递 Skills
+  - name: workspace-rules
+    path: ./workspace-rules
+    type: reference   # 共享工作区访问规范，直接注入 Agent 上下文
+    enabled: true
+
+  - name: mailbox-ops
+    path: ./mailbox-ops
+    type: task        # 需要执行脚本（filelock JSON 读写），在 AIO-Sandbox 中运行
+    enabled: true
+
+  # m4l28：数字员工的自我进化 Skills
+  - name: self-retrospective
+    path: ./self-retrospective
+    type: task        # 读取 L2/L3/L1 日志，调用 LLM 生成改进提案，在 AIO-Sandbox 中运行
+    enabled: true
+
+  - name: team-retrospective
+    path: ./team-retrospective
+    type: task        # 聚合所有 Agent 质量指标，识别瓶颈，发周报，在 AIO-Sandbox 中运行
+    enabled: true
+
+  # 预留：参考型 Skill 示例（如品牌规范、代码规范等）
+  # - name: brand-guidelines
+  #   path: ./brand-guidelines
+  #   type: reference   # 只读指令，不执行脚本
+  #   enabled: false

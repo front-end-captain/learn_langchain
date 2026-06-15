@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  aio-sandbox:
+    image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+    container_name: aio-sandbox
+    ports:
+      - "8022:8080"
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      HTTP_PROXY: "http://host.lima.internal:7897"
+      HTTPS_PROXY: "http://host.lima.internal:7897"
+      ALL_PROXY: "socks5://host.lima.internal:7897"
+      NO_PROXY: "localhost,127.0.0.1,::1,host.lima.internal"
+    restart: unless-stopped
