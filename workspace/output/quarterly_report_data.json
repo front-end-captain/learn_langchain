@@ -1,0 +1,305 @@
+{
+  "report_metadata": {
+    "company_name": "星云科技股份有限公司",
+    "report_title": "2025 年第三季度业绩报告",
+    "report_period": {
+      "start_date": "2025-07-01",
+      "end_date": "2025-09-30",
+      "quarter": "Q3 2025"
+    },
+    "publish_date": "2025-10-28",
+    "classification": "内部使用"
+  },
+  "executive_summary": {
+    "revenue": {
+      "value_billion_cny": 42.7,
+      "yoy_growth_pct": 23.4,
+      "qoq_growth_pct": 8.1,
+      "beat_market_expectation_pp": 5.2
+    },
+    "net_profit": {
+      "value_billion_cny": 6.3,
+      "net_margin_pct": 14.8,
+      "yoy_margin_improvement_pp": 2.1
+    },
+    "key_milestones": [
+      "云计算业务首次突破百亿年化营收里程碑",
+      "AI 大模型 API 调用量环比增长 156%",
+      "企业客户数量达到 12,847 家，较上季度净增 1,203 家",
+      "海外市场收入占比提升至 18.3%",
+      "东南亚区域增速达 67%"
+    ],
+    "board_resolution": {
+      "dividend_q3": "不派发中期股息",
+      "purpose": "利润留存用于 AI 基础设施建设",
+      "full_year_capex_billion_cny": 28,
+      "capex_yoy_growth_pct": 40
+    }
+  },
+  "core_financial_data": {
+    "quarterly_comparison": {
+      "headers": [
+        "指标",
+        "Q3 2025",
+        "Q2 2025",
+        "Q3 2024",
+        "同比变化"
+      ],
+      "metrics": [
+        {
+          "name": "营业收入",
+          "unit": "亿元",
+          "q3_2025": 42.7,
+          "q2_2025": 39.5,
+          "q3_2024": 34.6,
+          "yoy_change_pct": 23.4
+        },
+        {
+          "name": "毛利润",
+          "unit": "亿元",
+          "q3_2025": 19.8,
+          "q2_2025": 18.1,
+          "q3_2024": 15.4,
+          "yoy_change_pct": 28.6
+        },
+        {
+          "name": "毛利率",
+          "unit": "%",
+          "q3_2025": 46.4,
+          "q2_2025": 45.8,
+          "q3_2024": 44.5,
+          "yoy_change_pp": 1.9
+        },
+        {
+          "name": "净利润",
+          "unit": "亿元",
+          "q3_2025": 6.3,
+          "q2_2025": 5.7,
+          "q3_2024": 4.8,
+          "yoy_change_pct": 31.3
+        },
+        {
+          "name": "净利率",
+          "unit": "%",
+          "q3_2025": 14.8,
+          "q2_2025": 14.4,
+          "q3_2024": 13.9,
+          "yoy_change_pp": 0.9
+        },
+        {
+          "name": "经营现金流",
+          "unit": "亿元",
+          "q3_2025": 8.1,
+          "q2_2025": 7.4,
+          "q3_2024": 6.2,
+          "yoy_change_pct": 30.6
+        },
+        {
+          "name": "研发投入",
+          "unit": "亿元",
+          "q3_2025": 5.4,
+          "q2_2025": 5.1,
+          "q3_2024": 4.0,
+          "yoy_change_pct": 35.0
+        },
+        {
+          "name": "研发投入占收入比",
+          "unit": "%",
+          "q3_2025": 12.6,
+          "q2_2025": 12.9,
+          "q3_2024": 11.6,
+          "yoy_change_pp": 1.0
+        }
+      ]
+    }
+  },
+  "business_segments": {
+    "cloud_computing_infrastructure": {
+      "name": "云计算与基础设施",
+      "revenue_billion_cny": 21.3,
+      "revenue_share_pct": 49.9,
+      "yoy_growth_pct": 41.2,
+      "gross_margin_pct": 38.2,
+      "highlights": [
+        "首次成为公司最大收入来源",
+        "核心产品「星云云」月活跃企业用户达 8,421 家",
+        "IaaS 毛利率提升至 38.2%",
+        "PaaS 层产品 ARR 突破 50 亿元里程碑"
+      ]
+    },
+    "ai_large_model_api": {
+      "name": "AI 大模型与 API 服务",
+      "revenue_billion_cny": 9.8,
+      "revenue_share_pct": 22.9,
+      "yoy_growth_pct": 187.0,
+      "qoq_growth_pct": 34.0,
+      "gross_margin_pct": 52.4,
+      "highlights": [
+        "增速最快的业务线",
+        "推出 Xingyun-3 系列模型",
+        "MMLU 基准测试得分 87.3 分",
+        "多模态版本支持图文混合输入",
+        "已集成至 3,200+ 企业客户的生产系统"
+      ]
+    },
+    "enterprise_software_saas": {
+      "name": "企业软件与 SaaS",
+      "revenue_billion_cny": 8.6,
+      "revenue_share_pct": 20.1,
+      "yoy_growth_pct": 12.3,
+      "gross_margin_pct": 61.7,
+      "highlights": [
+        "增速相对平稳",
+        "ERP 产品续约率 94.1%",
+        "NPS 评分达到历史最高 72 分",
+        "新签大客户 47 家（合同金额 >500 万元）",
+        "包括 3 家央企和 8 家 A 股上市公司"
+      ]
+    },
+    "professional_services_consulting": {
+      "name": "专业服务与咨询",
+      "revenue_billion_cny": 3.0,
+      "revenue_share_pct": 7.0,
+      "yoy_growth_pct": 8.7,
+      "gross_margin_pct": 35.2,
+      "previous_quarter_gross_margin_pct": 36.1,
+      "highlights": [
+        "毛利率略低于上季度",
+        "Q3 新招聘 AI 咨询顾问 120 人，人员成本短期上升",
+        "预计 Q4 起毛利率将恢复至 38% 以上"
+      ]
+    },
+    "segment_summary_table": [
+      {
+        "segment": "云计算与基础设施",
+        "revenue_billion_cny": 21.3,
+        "revenue_share_pct": 49.9,
+        "yoy_growth_pct": 41.2,
+        "gross_margin_pct": 38.2
+      },
+      {
+        "segment": "AI 大模型与 API",
+        "revenue_billion_cny": 9.8,
+        "revenue_share_pct": 22.9,
+        "yoy_growth_pct": 187.0,
+        "gross_margin_pct": 52.4
+      },
+      {
+        "segment": "企业软件与 SaaS",
+        "revenue_billion_cny": 8.6,
+        "revenue_share_pct": 20.1,
+        "yoy_growth_pct": 12.3,
+        "gross_margin_pct": 61.7
+      },
+      {
+        "segment": "专业服务与咨询",
+        "revenue_billion_cny": 3.0,
+        "revenue_share_pct": 7.0,
+        "yoy_growth_pct": 8.7,
+        "gross_margin_pct": 35.2
+      },
+      {
+        "segment": "合计",
+        "revenue_billion_cny": 42.7,
+        "revenue_share_pct": 100.0,
+        "yoy_growth_pct": 23.4,
+        "gross_margin_pct": 46.4
+      }
+    ]
+  },
+  "risk_factors": [
+    {
+      "risk": "宏观经济压力",
+      "description": "企业 IT 预算收紧，部分中小客户推迟采购决策",
+      "estimated_q4_impact_billion_cny": 1.5
+    },
+    {
+      "risk": "竞争加剧",
+      "description": "国内大模型赛道竞争白热化，API 单价有下降压力",
+      "estimated_gross_margin_impact_pp": "1-2pp"
+    },
+    {
+      "risk": "人才成本上升",
+      "description": "AI 工程师薪资水平持续上涨",
+      "q3_labor_cost_yoy_growth_pct": 38
+    },
+    {
+      "risk": "海外合规",
+      "description": "东南亚市场数据本地化法规趋严",
+      "additional_compliance_cost_billion_cny": 0.8
+    }
+  ],
+  "q4_2025_guidance": {
+    "revenue_guidance": {
+      "low_billion_cny": 45.0,
+      "high_billion_cny": 47.5,
+      "yoy_growth_range_pct": "19% — 26%",
+      "q4_2024_actual_billion_cny": 37.8
+    },
+    "net_profit_guidance": {
+      "low_billion_cny": 6.5,
+      "high_billion_cny": 7.2,
+      "q4_2024_actual_billion_cny": 5.1
+    },
+    "net_margin_guidance": {
+      "low_pct": 14.4,
+      "high_pct": 15.2,
+      "q4_2024_actual_pct": 13.5
+    },
+    "rd_spending_guidance": {
+      "low_billion_cny": 5.8,
+      "high_billion_cny": 6.2,
+      "q4_2024_actual_billion_cny": 4.3
+    },
+    "full_year_guidance": {
+      "revenue_range_billion_cny": "162 — 165",
+      "revision_vs_beginning_of_year_pct": 8
+    },
+    "guidance_table": [
+      {
+        "metric": "营业收入（亿元）",
+        "q4_2025_low": 45.0,
+        "q4_2025_high": 47.5,
+        "q4_2024_actual": 37.8
+      },
+      {
+        "metric": "净利润（亿元）",
+        "q4_2025_low": 6.5,
+        "q4_2025_high": 7.2,
+        "q4_2024_actual": 5.1
+      },
+      {
+        "metric": "净利率",
+        "q4_2025_low_pct": 14.4,
+        "q4_2025_high_pct": 15.2,
+        "q4_2024_actual_pct": 13.5
+      },
+      {
+        "metric": "研发投入（亿元）",
+        "q4_2025_low": 5.8,
+        "q4_2025_high": 6.2,
+        "q4_2024_actual": 4.3
+      }
+    ]
+  },
+  "key_trends_and_conclusions": {
+    "positive_trends": [
+      "营收连续增长，Q3 同比增速 23.4%，超出市场预期",
+      "云计算业务首次成为最大收入来源（占比 49.9%），年化营收突破百亿",
+      "AI 业务爆发式增长（同比 +187%），成为第二增长曲线",
+      "盈利能力持续改善：毛利率同比提升 1.9pp，净利率同比提升 0.9pp",
+      "经营现金流强劲增长 30.6%，现金流质量良好",
+      "企业客户数持续扩张（净增 1,203 家），大客户签约活跃",
+      "海外市场快速拓展，东南亚增速达 67%",
+      "全年收入指引上调 8%，管理层对前景信心充足"
+    ],
+    "concerns": [
+      "宏观经济压力可能影响 Q4 收入约 1.5 亿元",
+      "AI 赛道竞争加剧，API 单价下降压力可能压缩毛利率 1-2pp",
+      "人力成本快速上升（同比 +38%），短期影响专业服务毛利率",
+      "海外合规成本增加（约 0.8 亿元）",
+      "Q3 不派发股息，利润全部用于再投资"
+    ],
+    "overall_assessment": "星云科技 Q3 2025 业绩表现强劲，营收和利润均实现双位数增长，云计算和 AI 业务成为核心增长引擎。公司上调全年收入指引，显示管理层对未来增长信心充足。主要风险集中在宏观环境、竞争加剧和人才成本方面，但整体基本面健康，增长趋势明确。"
+  }
+}

@@ -24,7 +24,7 @@ function extractFrontmatterDescription(content: string): string {
     return "";
   }
 
-  const parsed = Bun.YAML.parse(match[1]);
+  const parsed = Bun.YAML.parse(match[1] || "");
   if (!parsed || typeof parsed !== "object") {
     return "";
   }
@@ -35,7 +35,9 @@ function extractFrontmatterDescription(content: string): string {
     return "";
   }
 
-  return description.length > 200 ? `${description.slice(0, 200)}...` : description;
+  return description.length > 200
+    ? `${description.slice(0, 200)}...`
+    : description;
 }
 
 export class SkillRegistry {
@@ -131,6 +133,9 @@ export class SkillRegistry {
   }
 }
 
-export function createSkillRegistryEntry(type: SkillType, path: string): SkillRegistryEntry {
+export function createSkillRegistryEntry(
+  type: SkillType,
+  path: string,
+): SkillRegistryEntry {
   return { type, path };
 }

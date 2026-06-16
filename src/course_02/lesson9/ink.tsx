@@ -15,6 +15,6 @@ render(
     run={run}
     logDir={logDir}
     logFormat="pretty"
-    runName="lesson8"
+    runName="lesson9"
   />,
 );

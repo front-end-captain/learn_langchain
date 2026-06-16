@@ -11,7 +11,7 @@ import {
 } from "../../helper/agent-stream";
 
 const llm = new AliyunQwenChatModel({
-  model: "qwen3-max",
+  model: process.env["QWEN_MODEL"] ?? "qwen3.6-max-preview",
   apiKey: process.env["QWEN_API_KEY"] ?? "",
   apiBase: process.env["QWEN_API_BASE"] ?? "",
 });
@@ -32,15 +32,15 @@ const systemPrompt = `
 
 行为边界：
 你会尽量使用skill完成任务，而不是自行编造结果。
-  `;
+`;
 
 export async function run(input: string, onEvent?: AgentStreamEventHandler) {
-  const skillLoader = await createSkillLoaderTool();
+  const skillLoaderTool = await createSkillLoaderTool();
 
   const agent = createAgent({
     model: llm,
     systemPrompt,
-    tools: [skillLoader, saveIntermediateProductTool],
+    tools: [skillLoaderTool, saveIntermediateProductTool],
   });
 
   const stream = await agent.stream(
@@ -56,7 +56,7 @@ ${input}
 - 每个 Skill 的执行结果
 - 最终输出文件路径
 - 任务是否成功完成
-          `,
+`,
         },
       ],
     },
@@ -84,4 +84,3 @@ ${input}
 
   return { type: finalMessageType, message };
 }
-

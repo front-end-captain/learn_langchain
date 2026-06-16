@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  aio-sandbox:
+    container_name: aio-sandbox
+    image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
+    ports:
+      - "8022:8080" # Sandbox MCP 端点：http://localhost:8022/mcp
+    volumes:
+      # 💡 核心点：skills 挂载为只读，防止 Agent 篡改 Skill 文件
+      # skills 是 crewai_mas_demo 级共享资源，所有课复用
+      - ./skills:/mnt/skills:ro
+      # output 可读写，统一挂载到仓库外层 workspace/output
+      - ./workspace/output:/workspace/output:rw
+      # data 只读，统一挂载到仓库外层 workspace/data
+      - ./workspace/data:/workspace/data:ro
+    environment:
+      HTTP_PROXY: "http://host.lima.internal:7897"
+      HTTPS_PROXY: "http://host.lima.internal:7897"
+      ALL_PROXY: "socks5://host.lima.internal:7897"
+      NO_PROXY: "localhost,127.0.0.1,::1,host.lima.internal"
+    security_opt:
+      - seccomp:unconfined
+    restart: unless-stopped

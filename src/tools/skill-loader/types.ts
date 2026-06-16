@@ -16,7 +16,9 @@ export const DEFAULT_SANDBOX_MOUNT_DESC = [
 export const skillLoaderInputSchema = z.object({
   skill_name: z
     .string()
-    .describe("要加载的 Skill 名称，必须严格来自工具描述 XML 列表中的 <name> 值"),
+    .describe(
+      "要加载的 Skill 名称，必须严格来自工具描述 XML 列表中的 <name> 值",
+    ),
   task_context: z.preprocess(
     (value) => {
       if (value == null) {
@@ -75,25 +77,9 @@ export type SkillMeta = {
 
 export type SkillRegistryEntry = Pick<SkillMeta, "type" | "path">;
 
-export type SkillAgentModel = {
-  invoke(input: { messages: Array<{ role: "user"; content: string }> }): Promise<{
-    messages?: Array<{ content?: unknown }>;
-  }>;
-};
-
-export type SkillAgentRunnerInput = {
-  model: SkillAgentModel | undefined;
-  tools: any[];
-  systemPrompt: string;
-  taskContext: string;
-};
-
 export type SkillLoaderOptions = {
-  skillsDir?: string;
-  sandboxSkillsMount?: string;
-  sandboxMountDesc?: string;
+  skillsDir?: string; // TODO: remove this option
+  sandboxSkillsMount?: string; // TODO: remove this option
+  sandboxMountDesc?: string; // TODO: remove this option
   sandboxMcpUrl?: string;
-  model?: SkillAgentModel;
-  mcpToolsProvider?: (url: string) => Promise<any[]>;
-  agentRunner?: (input: SkillAgentRunnerInput) => Promise<string>;
 };

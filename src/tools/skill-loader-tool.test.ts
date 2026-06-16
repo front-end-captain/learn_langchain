@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createSkillLoaderTool, SkillLoaderToolService } from "./skill-loader-tool.ts";
+import {
+  createSkillLoaderTool,
+  SkillLoaderToolService,
+} from "./skill-loader-tool.ts";
 import { SkillInstructionsStore } from "./skill-loader/instructions.ts";
 
 async function createSkillsFixture(input: {
@@ -182,11 +185,6 @@ Task body
 
     const service = new SkillLoaderToolService({
       skillsDir,
-      model: {
-        invoke: async () => ({ messages: [] }),
-      },
-      mcpToolsProvider: async () => ["sandbox_tool"],
-      agentRunner,
     });
 
     const result = await service.execute({

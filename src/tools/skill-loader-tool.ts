@@ -86,7 +86,7 @@ export class SkillLoaderToolService {
   }
 }
 
-export async function createSkillLoaderTool(options?: SkillLoaderOptions = {}) {
+export async function createSkillLoaderTool(options: SkillLoaderOptions = {}) {
   const service = new SkillLoaderToolService(options);
   await service.init();
 

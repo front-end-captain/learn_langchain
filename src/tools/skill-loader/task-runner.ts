@@ -4,7 +4,6 @@ import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model.ts";
 import {
   DEFAULT_SANDBOX_MCP_URL,
   DEFAULT_SANDBOX_MOUNT_DESC,
-  type SkillAgentRunnerInput,
   type SkillLoaderOptions,
 } from "./types.ts";
 
@@ -34,16 +33,7 @@ function stringifyMessageContent(content: unknown): string {
   return String(content);
 }
 
-export function createDefaultSkillModel() {
-  return new AliyunQwenChatModel({
-    model: process.env["QWEN_MODEL"] ?? "qwen3.7-plus",
-    apiKey: process.env["QWEN_API_KEY"] ?? "",
-    apiBase: process.env["QWEN_API_BASE"] ?? "",
-    temperature: 0.3,
-  });
-}
-
-export async function defaultMcpToolsProvider(url: string): Promise<any[]> {
+export async function mcpToolsProvider(url: string) {
   const client = new MultiServerMCPClient({
     sandbox: {
       transport: "http",
@@ -51,35 +41,6 @@ export async function defaultMcpToolsProvider(url: string): Promise<any[]> {
     },
   });
   return client.getTools();
-}
-
-export async function defaultAgentRunner({
-  model,
-  tools,
-  systemPrompt,
-  taskContext,
-}: SkillAgentRunnerInput): Promise<string> {
-  if (!model) {
-    throw new Error("Task 型 Skill 缺少可用模型实例");
-  }
-
-  const agent = createAgent({
-    model: model as never,
-    tools,
-    systemPrompt,
-  });
-
-  const result = await agent.invoke({
-    messages: [
-      {
-        role: "user",
-        content: taskContext,
-      },
-    ],
-  });
-
-  const lastMessage = result.messages.at(-1);
-  return stringifyMessageContent(lastMessage?.content);
 }
 
 export async function runTaskSkill(input: {
@@ -91,11 +52,8 @@ export async function runTaskSkill(input: {
   const mcpUrl = input.options.sandboxMcpUrl ?? DEFAULT_SANDBOX_MCP_URL;
   const sandboxMountDesc =
     input.options.sandboxMountDesc ?? DEFAULT_SANDBOX_MOUNT_DESC;
-  const model = input.options.model ?? createDefaultSkillModel();
-  const getTools = input.options.mcpToolsProvider ?? defaultMcpToolsProvider;
-  const runAgent = input.options.agentRunner ?? defaultAgentRunner;
 
-  const tools = await getTools(mcpUrl);
+  const tools = await mcpToolsProvider(mcpUrl);
   const systemPrompt = [
     `你是 ${input.skillName.toUpperCase()} Skill 执行专家。`,
     `你必须严格遵循以下 Skill 指令：\n${input.instructions}`,
@@ -103,10 +61,28 @@ export async function runTaskSkill(input: {
     "所有脚本和文件操作必须通过 MCP 沙盒工具完成。",
   ].join("\n\n");
 
-  return runAgent({
+  const model = new AliyunQwenChatModel({
+    model: process.env["QWEN_MODEL"] ?? "qwen3.6-max-preview",
+    apiKey: process.env["QWEN_API_KEY"] ?? "",
+    apiBase: process.env["QWEN_API_BASE"] ?? "",
+    temperature: 0.3,
+  });
+
+  const agent = createAgent({
     model,
     tools,
     systemPrompt,
-    taskContext: input.taskContext,
   });
+
+  const result = await agent.invoke({
+    messages: [
+      {
+        role: "user",
+        content: input.taskContext,
+      },
+    ],
+  });
+
+  const lastMessage = result.messages.at(-1);
+  return stringifyMessageContent(lastMessage?.content);
 }
