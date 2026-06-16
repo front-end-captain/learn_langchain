@@ -1,4 +1,7 @@
 - 创建长连接客户端和事件处理
+
+> 文档地址 https://open.feishu.cn/document/server-side-sdk/nodejs-sdk/handling-events 参考 ‘方式一：使用长连接接收事件’ 章节
+
 ``` typescript
 import * as Lark from "@larksuiteoapi/node-sdk";
 
@@ -31,7 +34,9 @@ wsClient.start({
 ```
 
 - 发送消息
+
 > 向指定用户或者群聊发送消息。支持发送的消息类型包括文本、富文本、卡片、群名片、个人名片、图片、视频、音频、文件以及表情包等
+> 文档地址：https://open.feishu.cn/document/server-docs/im-v1/message/create
 
 ``` typescript
 client.im.v1.message
@@ -40,9 +45,39 @@ client.im.v1.message
       receive_id_type: "chat_id",
     },
     data: {
-      receive_id: "ou_7d8a6e6df7621556ce0d21922b676706ccs",
-      msg_type: "text",
-      content: '{"text":"test content"}',
+      receive_id: "ou_7d8a6e6df7621556ce0d21922b676706ccs", // chat_id
+      msg_type: "text", // 消息类型
+      content: '{"text":"test content"}', // 消息内容
+      uuid: "选填，每次调用前请更换，如a0d69e20-1dd1-458b-k525-dfeca4015204",
+    },
+  })
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((e) => {
+    console.error(JSON.stringify(e.response.data, null, 4));
+  });
+```
+
+- 发送卡片消息
+
+> 向指定用户或者群聊发送卡片消息
+> 文档地址：https://open.feishu.cn/document/server-docs/im-v1/message/create
+
+``` typescript
+client.im.v1.message
+  .create({
+    params: {
+      receive_id_type: "chat_id",
+    },
+    data: {
+      receive_id: "ou_7d8a6e6df7621556ce0d21922b676706ccs", // chat_id
+      // 卡片内容
+      content: Lark.messageCard.defaultCard({
+        title: `回复： ${JSON.parse(content).text}`,
+        content: "新年好",
+      }),
+      msg_type: "interactive", // 消息类型为‘卡片’
       uuid: "选填，每次调用前请更换，如a0d69e20-1dd1-458b-k525-dfeca4015204",
     },
   })
@@ -55,11 +90,41 @@ client.im.v1.message
 ```
 
 - 回复消息
+
+> 回复指定消息。回复的内容支持文本、富文本、卡片、群名片、个人名片、图片、视频、文件等多种类型
+> 文档地址：https://open.feishu.cn/document/server-docs/im-v1/message/reply
+
 ``` typescript
 client.im.v1.message
   .reply({
     path: {
-      message_id: "",
+      message_id: "", // 待回复的消息ID
+    },
+    data: {
+      content: '{"text":"test content"}', // 回复内容
+      msg_type: "text", // 消息类型
+      reply_in_thread: true, // 是否以话题形式回复。取值为 true 时将以话题形式回复。
+      uuid: "选填，每次调用前请更换，如a0d69e20-1dd1-458b-k525-dfeca4015204",
+    },
+  })
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((e) => {
+    console.error(JSON.stringify(e.response.data, null, 4));
+  });
+```
+
+- 更新/更新消息
+
+> 编辑已发送的消息内容，支持编辑文本、富文本消息。不支持编辑卡片消息
+> 文档地址：https://open.feishu.cn/document/server-docs/im-v1/message/update
+
+``` typescript
+client.im.v1.message
+  .update({
+    path: {
+      message_id: "", // 消息ID
     },
     data: {
       content: '{"text":"test content"}',
@@ -75,3 +140,52 @@ client.im.v1.message
     console.error(JSON.stringify(e.response.data, null, 4));
   });
 ```
+
+- 更新/编辑卡片消息
+
+> 编辑已发送的消息卡片
+> 文档地址：https://open.feishu.cn/document/server-docs/im-v1/message-card/patch
+
+``` typescript
+client.im.v1.message
+  .patch({
+    path: {
+      message_id: "", // 消息ID
+    },
+    data: {
+      content: Lark.messageCard.defaultCard({
+        title: `回复：`,
+        content: "新春快乐",
+      }),
+    },
+  })
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((e) => {
+    console.error(JSON.stringify(e.response.data, null, 4));
+  });
+```
+
+- 获取消息中的资源文件
+
+> 获取指定消息内包含的资源文件，包括音频、视频、图片和文件。成功调用后，返回二进制文件流下载文件
+> 文档地址：https://open.feishu.cn/document/server-docs/im-v1/message/get-2
+
+
+``` typescript
+client.im.v1.messageResource.get({
+  params: {
+    type: 'image' // 获取图片文件
+  },
+  path: {
+    message_id: "om_x100b6c23e4a8a4acc213560ef5afc3f",
+    file_key: 'img_v3_0212o_5ff2ba5e-9975-45f0-8155-e5ba9505f66g'
+  }
+}).then(res => {
+  res.writeFile(`foo.png`);
+}).catch(e => {
+  console.error(JSON.stringify(e.response.data, null, 4));
+});
+```
+
