@@ -136,6 +136,21 @@ describe("FeishuSender.send", () => {
     expect(client.calls.create).toHaveLength(3);
     expect(sleepFn).toHaveBeenCalledTimes(2);
   });
+
+  it("throws for unknown routing keys before retrying", async () => {
+    const client = createMockClient();
+    const sleepFn = mock(async (_ms: number) => undefined);
+    const sender = new FeishuSender({
+      client,
+      retryBackoffMs: [0],
+      sleepFn,
+    });
+
+    await expect(sender.send("unknown:key", "hello", "om_root")).resolves.toBeUndefined();
+    expect(client.calls.create).toHaveLength(0);
+    expect(client.calls.reply).toHaveLength(0);
+    expect(sleepFn).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe("FeishuSender.sendText", () => {
@@ -152,6 +167,24 @@ describe("FeishuSender.sendText", () => {
       },
     });
   });
+
+  it("replies text in thread for slash commands", async () => {
+    const client = createMockClient();
+    const sender = new FeishuSender({ client, retryBackoffMs: [0] });
+
+    await sender.sendText("thread:oc_group:omt_thread", "/status reply", "om_root");
+
+    expect(client.calls.reply).toHaveLength(1);
+    expect(client.calls.reply[0]).toMatchObject({
+      path: { message_id: "om_root" },
+      data: {
+        msg_type: "text",
+        content: JSON.stringify({ text: "/status reply" }),
+        reply_in_thread: true,
+        uuid: "om_root",
+      },
+    });
+  });
 });
 
 describe("FeishuSender.sendThinking", () => {
@@ -164,6 +197,26 @@ describe("FeishuSender.sendThinking", () => {
     await expect(sender.sendThinking("p2p:ou_user", "om_root")).resolves.toBe(
       "om_loading",
     );
+  });
+
+  it("replies thinking card in thread and returns message id", async () => {
+    const client = createMockClient({
+      reply: async () => ({ code: 0, data: { message_id: "om_thread_loading" } }),
+    });
+    const sender = new FeishuSender({ client, retryBackoffMs: [0] });
+
+    await expect(
+      sender.sendThinking("thread:oc_group:omt_thread", "om_root"),
+    ).resolves.toBe("om_thread_loading");
+    expect(client.calls.reply).toHaveLength(1);
+    expect(client.calls.reply[0]).toMatchObject({
+      path: { message_id: "om_root" },
+      data: {
+        msg_type: "interactive",
+        reply_in_thread: true,
+        uuid: "om_root",
+      },
+    });
   });
 
   it("returns null on sdk failure or api failure", async () => {

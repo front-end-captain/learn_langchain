@@ -17,6 +17,41 @@ skills:
     type: task       # 需要代码执行（docx-js / pandoc）
     enabled: true
 
+  - name: pptx
+    path: ./pptx
+    type: task       # XiaoPaw 内置：PowerPoint 处理
+    enabled: true
+
+  - name: xlsx
+    path: ./xlsx
+    type: task       # XiaoPaw 内置：Excel 表格处理
+    enabled: true
+
+  - name: feishu_ops
+    path: ./feishu_ops
+    type: task       # XiaoPaw 内置：飞书文档/消息/日程操作
+    enabled: true
+
+  - name: scheduler_mgr
+    path: ./scheduler_mgr
+    type: task       # XiaoPaw 内置：定时任务管理
+    enabled: true
+
+  - name: baidu_search
+    path: ./baidu_search
+    type: task       # XiaoPaw 内置：百度千帆搜索
+    enabled: true
+
+  - name: web_browse
+    path: ./web_browse
+    type: task       # XiaoPaw 内置：网页浏览与内容提取
+    enabled: true
+
+  - name: history_reader
+    path: ./history_reader
+    type: reference  # XiaoPaw 内置：内联分页读取历史，不启动沙盒
+    enabled: true
+
   # m3l20：文件系统记忆 Skills
   - name: memory-save
     path: ./memory-save

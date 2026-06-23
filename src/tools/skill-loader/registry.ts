@@ -98,7 +98,8 @@ export class SkillRegistry {
     return [...this.registry.keys()];
   }
 
-  buildDescription(): string {
+  buildDescription(context: { sessionDir?: string } = {}): string {
+    const sessionDir = context.sessionDir ?? "/workspace/sessions/<session_id>";
     const xmlParts = ["<available_skills>"];
 
     for (const [name, entry] of this.registry.entries()) {
@@ -116,6 +117,10 @@ export class SkillRegistry {
       "⚠️ 重要：这是你唯一的工具。所有能力都必须通过此工具调用，不得直接调用 skill 名称作为工具。",
       "调用方式：skill_loader(skill_name='<名称>', task_context='<任务描述>')",
       "skill_name 必须严格来自下方 XML 列表中的 <name> 值。",
+      "task 类型 Skill 的 task_context 必须包含完整任务描述、预期输出格式和 JSON schema。",
+      `当前 session 工作目录（沙盒路径）：${sessionDir}/`,
+      `  - 输入文件（用户上传）：${sessionDir}/uploads/`,
+      `  - 输出文件（Skill 产出）：${sessionDir}/outputs/`,
       "",
       ...xmlParts,
     ].join("\n");

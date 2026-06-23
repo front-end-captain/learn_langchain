@@ -1,5 +1,5 @@
-import type { SenderProtocol } from "../models.ts";
 import * as Lark from "@larksuiteoapi/node-sdk";
+import type { SenderProtocol } from "../models.ts";
 
 export interface FeishuApiResponse<TData = unknown> {
   code?: number | undefined;

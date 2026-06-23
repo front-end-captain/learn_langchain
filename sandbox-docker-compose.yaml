@@ -7,13 +7,9 @@ services:
     ports:
       - "8022:8080" # Sandbox MCP 端点：http://localhost:8022/mcp
     volumes:
-      # 💡 核心点：skills 挂载为只读，防止 Agent 篡改 Skill 文件
-      # skills 是 crewai_mas_demo 级共享资源，所有课复用
-      - ./skills:/mnt/skills:ro
-      # output 可读写，统一挂载到仓库外层 workspace/output
-      - ./workspace/output:/workspace/output:rw
-      # data 只读，统一挂载到仓库外层 workspace/data
-      - ./workspace/data:/workspace/data:ro
+      - ./src/skills:/mnt/skills:ro
+      - ./data/workspace:/workspace:rw
+      - ./data/cron:/workspace/cron:rw
     environment:
       HTTP_PROXY: "http://host.lima.internal:7897"
       HTTPS_PROXY: "http://host.lima.internal:7897"

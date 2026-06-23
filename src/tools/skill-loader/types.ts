@@ -1,4 +1,6 @@
 import { fileURLToPath } from "node:url";
+import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import type { ClientTool, ServerTool } from "@langchain/core/tools";
 import * as z from "zod";
 
 export const DEFAULT_SKILLS_DIR = fileURLToPath(
@@ -19,37 +21,39 @@ export const skillLoaderInputSchema = z.object({
     .describe(
       "要加载的 Skill 名称，必须严格来自工具描述 XML 列表中的 <name> 值",
     ),
-  task_context: z.preprocess(
-    (value) => {
-      if (value == null) {
-        return "";
-      }
-      if (typeof value === "string") {
-        return value;
-      }
-      if (Array.isArray(value) || typeof value === "object") {
-        try {
-          return JSON.stringify(value, null, 2);
-        } catch {
-          return String(value);
-        }
-      }
-      return String(value);
-    },
-    z
-      .string()
-      .default("")
-      .describe(
-        [
-          "如果是参考型 skill，此项可为空。",
-          "如果是任务型 skill，此项为调用此 Skill 要完成的子任务完整描述。",
-          "建议包含：任务目标、预期输出格式、必要参数、输入/输出文件路径和额外约束。",
-        ].join(""),
-      ),
-  ),
+  task_context: z
+    .string()
+    .optional()
+    .describe(
+      [
+        "如果是参考型 skill，此项可为空。",
+        "如果是任务型 skill，此项为调用此 Skill 要完成的子任务完整描述。",
+        "建议包含：任务目标、预期输出格式、必要参数、输入/输出文件路径和额外约束。",
+      ].join(""),
+    ),
 });
 
-export type SkillLoaderInput = z.infer<typeof skillLoaderInputSchema>;
+export type SkillLoaderInput = {
+  skill_name: string;
+  task_context?: unknown;
+};
+
+export function normalizeTaskContext(value: unknown): string {
+  if (value == null) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value) || typeof value === "object") {
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
 
 export const skillManifestSchema = z.object({
   skills: z
@@ -77,9 +81,54 @@ export type SkillMeta = {
 
 export type SkillRegistryEntry = Pick<SkillMeta, "type" | "path">;
 
+export type HistoryMessageEntry = {
+  role: "user" | "assistant" | string;
+  content: string;
+};
+
+export type TaskSkillRunner = (input: {
+  skillName: string;
+  instructions: string;
+  taskContext: string;
+  options: SkillLoaderOptions;
+}) => Promise<string>;
+
+export type SkillAgentTool = ClientTool | ServerTool;
+
+export type McpToolsProvider = (url: string) => Promise<SkillAgentTool[]>;
+
+export type SubAgentRunner = (input: {
+  model: BaseChatModel;
+  tools: SkillAgentTool[];
+  systemPrompt: string;
+  taskPrompt: string;
+  maxIter: number;
+}) => Promise<string>;
+
 export type SkillLoaderOptions = {
   skillsDir?: string; // TODO: remove this option
   sandboxSkillsMount?: string; // TODO: remove this option
   sandboxMountDesc?: string; // TODO: remove this option
   sandboxMcpUrl?: string;
+  subAgentModel?: string;
+  subAgentChatModel?: BaseChatModel;
+  subAgentMaxIter?: number;
+  sessionId?: string;
+  routingKey?: string;
+  historyAll?: HistoryMessageEntry[];
+  workspaceRoot?: string;
+  sessionDir?: string;
+  taskRunner?: TaskSkillRunner;
+  mcpToolsProvider?: McpToolsProvider;
+  subAgentRunner?: SubAgentRunner;
 };
+
+export function resolveSessionDir(options: Pick<SkillLoaderOptions, "sessionDir" | "workspaceRoot" | "sessionId">): string {
+  if (options.sessionDir) {
+    return options.sessionDir.replace(/\/$/, "");
+  }
+
+  const workspaceRoot = (options.workspaceRoot ?? "/workspace").replace(/\/$/, "");
+  const sessionId = options.sessionId || "<session_id>";
+  return `${workspaceRoot}/sessions/${sessionId}`;
+}

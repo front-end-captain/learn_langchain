@@ -8,7 +8,7 @@ import { FeishuDownloader } from "./downloader.ts";
 import type { Attachment } from "../models.ts";
 
 function createClient(input?: {
-  get?: (payload: unknown) => Promise<{ writeFile: () => Promise<unknown> }>;
+  get?: (payload: unknown) => Promise<{ writeFile: (path: string) => Promise<unknown> }>;
 }): Lark.Client & { calls: unknown[] } {
   const calls: unknown[] = [];
   return {
@@ -95,6 +95,27 @@ describe("FeishuDownloader", () => {
       get: () => {
         throw new Error("network");
       },
+    });
+    const downloader = new FeishuDownloader({ client, dataDir });
+
+    await expect(
+      downloader.download(
+        "om_001",
+        { msgType: "file", fileKey: "file_001", fileName: "report.txt" },
+        "s-001",
+      ),
+    ).resolves.toBeNull();
+  });
+
+  it("returns null when writing downloaded resource fails", async () => {
+    const dataDir = await mkdtemp(join(tmpdir(), "feishu-downloader-"));
+    tempDirs.push(dataDir);
+    const client = createClient({
+      get: async () => ({
+        writeFile: async () => {
+          throw new Error("disk full");
+        },
+      }),
     });
     const downloader = new FeishuDownloader({ client, dataDir });
 

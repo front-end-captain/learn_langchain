@@ -301,6 +301,7 @@ export async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// NOTE:
 export async function runForever(
   listener: Pick<FeishuListener, "start">,
   sleepFn: (ms: number) => Promise<void> = sleep,

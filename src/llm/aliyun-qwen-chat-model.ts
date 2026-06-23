@@ -110,6 +110,7 @@ export type AliyunQwenChatModelFields = BaseChatModelParams & {
   temperature?: number;
   timeout?: number;
   retryCount?: number;
+  toolResultMaxChars?: number;
 };
 
 type NormalizedMessages = {
@@ -120,6 +121,8 @@ type NormalizedMessages = {
 const DEFAULT_TIMEOUT_MS = 600_000;
 const DEFAULT_RETRY_COUNT = 2;
 const DEFAULT_IMAGE_MODEL = "qwen3-vl-plus";
+const DEFAULT_API_BASE = "https://dashscope.aliyuncs.com/compatible-mode/v1";
+const DEFAULT_TOOL_RESULT_MAX_CHARS = 20_000;
 const MAX_EMPTY_CONTENT_RETRIES = 2;
 
 export class AliyunQwenChatModel extends BaseChatModel<AliyunQwenChatModelCallOptions> {
@@ -137,23 +140,29 @@ export class AliyunQwenChatModel extends BaseChatModel<AliyunQwenChatModelCallOp
 
   retryCount: number;
 
+  toolResultMaxChars: number;
+
   constructor(fields: AliyunQwenChatModelFields) {
     super(fields);
 
     this.model = fields.model;
-    this.apiKey = fields.apiKey ?? "";
-    this.apiBase = fields.apiBase ?? "";
+    this.apiKey =
+      fields.apiKey ??
+      process.env["QWEN_API_KEY"] ??
+      process.env["DASHSCOPE_API_KEY"] ??
+      "";
+    this.apiBase = fields.apiBase ?? process.env["QWEN_API_BASE"] ?? DEFAULT_API_BASE;
     this.imageModel = fields.imageModel ?? DEFAULT_IMAGE_MODEL;
     this.temperature = fields.temperature;
     this.timeout = fields.timeout ?? DEFAULT_TIMEOUT_MS;
     this.retryCount =
       fields.retryCount ?? parseRetryCount(process.env["LLM_RETRY_COUNT"]);
+    this.toolResultMaxChars =
+      fields.toolResultMaxChars ??
+      parseToolResultMaxChars(process.env["QWEN_TOOL_RESULT_MAX_CHARS"]);
 
     if (!this.apiKey) {
       throw new ValueError("API Key 未提供");
-    }
-    if (!this.apiBase) {
-      throw new ValueError("API base url");
     }
   }
 
@@ -270,7 +279,10 @@ export class AliyunQwenChatModel extends BaseChatModel<AliyunQwenChatModelCallOp
     options: this["ParsedCallOptions"],
   ): Promise<AliyunQwenResponse> {
     const normalized = normalizeMultimodalToolResult(
-      convertMessagesToAliyunMessages(messages),
+      truncateToolResults(
+        convertMessagesToAliyunMessages(messages),
+        this.toolResultMaxChars,
+      ),
     );
     const payload: Record<string, unknown> = {
       model: normalized.useImageModel ? this.imageModel : this.model,
@@ -289,6 +301,10 @@ export class AliyunQwenChatModel extends BaseChatModel<AliyunQwenChatModelCallOp
     const toolChoice = normalizeToolChoice(options.tool_choice);
     if (toolChoice !== undefined) {
       payload["tool_choice"] = toolChoice;
+    }
+
+    if (shouldDebugPayload()) {
+      console.debug("QWEN_DEBUG_PAYLOAD", JSON.stringify(payload, null, 2));
     }
 
     return this.postWithRetry(payload);
@@ -475,6 +491,32 @@ export function normalizeMultimodalToolResult(
   }
 
   return { messages: out, useImageModel };
+}
+
+export function truncateToolResults(
+  messages: AliyunQwenMessage[],
+  maxChars: number = DEFAULT_TOOL_RESULT_MAX_CHARS,
+): AliyunQwenMessage[] {
+  if (maxChars <= 0) {
+    return messages;
+  }
+
+  return messages.map((message) => {
+    if (message.role !== "tool" || typeof message.content !== "string") {
+      return message;
+    }
+    if (message.content.length <= maxChars) {
+      return message;
+    }
+
+    return {
+      ...message,
+      content: [
+        message.content.slice(0, maxChars),
+        "\n\n[工具返回内容已截断：原始内容过长。请换用分批处理、摘要提取或写入文件后再读取的方式继续。]",
+      ].join(""),
+    };
+  });
 }
 
 function convertMessageContent(content: MessageContent): AliyunQwenContent {
@@ -684,6 +726,21 @@ function parseRetryCount(value: string | undefined): number {
 
   const parsed = Number.parseInt(value, 10);
   return Number.isNaN(parsed) ? DEFAULT_RETRY_COUNT : parsed;
+}
+
+function parseToolResultMaxChars(value: string | undefined): number {
+  if (value === undefined) {
+    return DEFAULT_TOOL_RESULT_MAX_CHARS;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? DEFAULT_TOOL_RESULT_MAX_CHARS : parsed;
+}
+
+export function shouldDebugPayload(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env["QWEN_DEBUG_PAYLOAD"] === "1";
 }
 
 async function fetchWithTimeout(

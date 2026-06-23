@@ -167,17 +167,14 @@ Task body
 
     const agentRunner = mock(
       async ({
-        tools,
-        systemPrompt,
+        instructions,
         taskContext,
       }: {
-        tools: unknown[];
-        systemPrompt: string;
+        instructions: string;
         taskContext: string;
       }) => {
-        expect(tools).toEqual(["sandbox_tool"]);
-        expect(systemPrompt).toContain("Task body");
-        expect(systemPrompt).toContain("执行要求");
+        expect(instructions).toContain("Task body");
+        expect(instructions).toContain("sandbox_execution_directive");
         expect(taskContext).toBe("完成任务");
         return "task runner ok";
       },
@@ -185,6 +182,7 @@ Task body
 
     const service = new SkillLoaderToolService({
       skillsDir,
+      taskRunner: agentRunner,
     });
 
     const result = await service.execute({

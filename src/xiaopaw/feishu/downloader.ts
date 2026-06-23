@@ -48,7 +48,7 @@ export class FeishuDownloader {
       return destPath;
     } catch (error) {
       console.error(
-        "fo下载附件异常",
+        "下载附件异常",
         `msg_id=${msgId}`,
         `file_key=${attachment.fileKey}`,
         error,
