@@ -47,6 +47,7 @@ describe("XiaoPaw config", () => {
     const config = await loadXiaopawConfig(configPath, {});
 
     expect(config.data_dir).toBe("./data");
+    expect(config.instructions_dir).toBe("./instructions_dir");
     expect(config.sandbox.url).toBe("http://localhost:8022/mcp");
     expect(config.sandbox.workspace_dir).toBe("/workspace");
     expect(config.debug.enable_test_api).toBe(false);

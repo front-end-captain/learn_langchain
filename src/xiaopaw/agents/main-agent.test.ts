@@ -1,12 +1,17 @@
 import { FakeListChatModel } from "@langchain/core/utils/testing";
 import { afterEach, describe, expect, it, mock } from "bun:test";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { SenderProtocol } from "../models.ts";
 import type { MessageEntry } from "../session/models.ts";
-import { buildAgentFn, buildUserPrompt, formatHistory } from "./main-agent.ts";
+import {
+  buildAgentFn,
+  buildBootstrapSystemPrompt,
+  buildUserPrompt,
+  formatHistory,
+} from "./main-agent.ts";
 
 class RecordingSender implements SenderProtocol {
   readonly sent: Array<{ routingKey: string; content: string; rootId: string }> = [];
@@ -75,6 +80,41 @@ describe("buildUserPrompt", () => {
     expect(prompt).toContain("【用户消息】");
     expect(prompt).toContain("hello");
     expect(prompt).not.toContain("s-secret-session");
+  });
+});
+
+describe("buildBootstrapSystemPrompt", () => {
+  const tempDirs: string[] = [];
+
+  afterEach(async () => {
+    await Promise.all(
+      tempDirs.map((dir) => rm(dir, { recursive: true, force: true })),
+    );
+    tempDirs.length = 0;
+  });
+
+  it("loads bootstrap instruction files and caps memory index", async () => {
+    const instructionsDir = await mkdtemp(join(tmpdir(), "xiaopaw-instructions-"));
+    tempDirs.push(instructionsDir);
+    await writeFile(join(instructionsDir, "soul.md"), "身份风格\n", "utf8");
+    await writeFile(join(instructionsDir, "user.md"), "用户画像\n", "utf8");
+    await writeFile(join(instructionsDir, "agent.md"), "执行规则\n", "utf8");
+    await writeFile(
+      join(instructionsDir, "memory.md"),
+      Array.from({ length: 205 }, (_, index) => `memory-${index + 1}`).join(
+        "\n",
+      ),
+      "utf8",
+    );
+
+    const prompt = buildBootstrapSystemPrompt(instructionsDir);
+
+    expect(prompt).toContain("你是 XiaoPaw");
+    expect(prompt).toContain("<soul>\n身份风格\n</soul>");
+    expect(prompt).toContain("<user_profile>\n用户画像\n</user_profile>");
+    expect(prompt).toContain("<agent_rules>\n执行规则\n</agent_rules>");
+    expect(prompt).toContain("memory-200");
+    expect(prompt).not.toContain("memory-201");
   });
 });
 

@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { AIMessage, type BaseMessage } from "@langchain/core/messages";
 import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { createAgent } from "langchain";
@@ -26,6 +29,13 @@ import type { MessageEntry } from "../session/models.ts";
 import { MainTaskOutputSchema, type MainTaskOutput } from "./models.ts";
 
 const DEFAULT_MAX_HISTORY_TURNS = 20;
+const MEMORY_INDEX_MAX_LINES = 200;
+
+const BOOTSTRAP_INSTRUCTION_FILES = [
+  { fileName: "soul.md", tag: "soul" },
+  { fileName: "user.md", tag: "user_profile" },
+  { fileName: "agent.md", tag: "agent_rules" },
+] as const;
 
 const SYSTEM_PROMPT = `
 你是 XiaoPaw（小爪子），部署在飞书的本地工作助手，专为企业内网场景设计。
@@ -44,12 +54,41 @@ const SYSTEM_PROMPT = `
 - 最终必须生成符合 MainTaskOutput 的结构化结果。
 `;
 
+export function buildBootstrapSystemPrompt(instructionsDir?: string): string {
+  const parts = [SYSTEM_PROMPT.trim()];
+
+  if (!instructionsDir) {
+    return parts.join("\n\n");
+  }
+
+  for (const { fileName, tag } of BOOTSTRAP_INSTRUCTION_FILES) {
+    const filePath = join(instructionsDir, fileName);
+    if (!existsSync(filePath)) {
+      continue;
+    }
+
+    const content = readFileSync(filePath, "utf8").trim();
+    parts.push(`<${tag}>\n${content}\n</${tag}>`);
+  }
+
+  const memoryPath = join(instructionsDir, "memory.md");
+  if (existsSync(memoryPath)) {
+    const lines = readFileSync(memoryPath, "utf8")
+      .split(/\r?\n/)
+      .slice(0, MEMORY_INDEX_MAX_LINES);
+    parts.push(`<memory_index>\n${lines.join("\n")}\n</memory_index>`);
+  }
+
+  return parts.join("\n\n");
+}
+
 export type BuildAgentFnOptions = {
   sender?: SenderProtocol;
   model?: BaseChatModel;
   maxHistoryTurns?: number;
   onEvent?: AgentStreamEventHandler;
   skillsDir?: string;
+  instructionsDir?: string;
   sandboxMcpUrl?: string;
   sandboxSkillsMount?: string;
   workspaceRoot?: string;
@@ -96,7 +135,10 @@ export function buildUserPrompt(input: {
 }): string {
   return [
     "【历史对话】",
-    formatHistory(input.history, input.maxHistoryTurns ?? DEFAULT_MAX_HISTORY_TURNS),
+    formatHistory(
+      input.history,
+      input.maxHistoryTurns ?? DEFAULT_MAX_HISTORY_TURNS,
+    ),
     "",
     "【用户消息】",
     input.userMessage,
@@ -157,7 +199,7 @@ export function buildAgentFn(options: BuildAgentFnOptions = {}): AgentFn {
     const agent = createAgent({
       model,
       tools: [skillLoaderTool],
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt: buildBootstrapSystemPrompt(options.instructionsDir),
       responseFormat: MainTaskOutputSchema,
     });
     const prompt = buildUserPrompt({ userMessage, history, maxHistoryTurns });
@@ -208,7 +250,12 @@ export function buildAgentFn(options: BuildAgentFnOptions = {}): AgentFn {
       return fallbackReply;
     }
 
-    safeWriteAgentEnd(fileLogger, "error", undefined, new Error("主 Agent 未返回可用回复"));
+    safeWriteAgentEnd(
+      fileLogger,
+      "error",
+      undefined,
+      new Error("主 Agent 未返回可用回复"),
+    );
     throw new Error("主 Agent 未返回可用回复");
   };
 }
@@ -289,7 +336,11 @@ async function emitEvent(
   }
 
   try {
-    await options.sender.send(routingKey, formatAgentStreamEvent(event), rootId);
+    await options.sender.send(
+      routingKey,
+      formatAgentStreamEvent(event),
+      rootId,
+    );
   } catch (error) {
     console.warn("verbose event send failed", error);
   }

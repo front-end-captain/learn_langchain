@@ -88,6 +88,7 @@ const configSchema = z.object({
     })
     .default({ max_retries: 3, retry_backoff: [1, 2, 4] }),
   data_dir: z.string().default("./data"),
+  instructions_dir: z.string().default("./instructions_dir"),
   debug: z
     .object({
       enable_test_api: z.boolean().default(false),
@@ -107,9 +108,12 @@ export function expandEnvVars(
   text: string,
   env: Record<string, string | undefined> = process.env,
 ): string {
-  return text.replaceAll(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (_match, name: string) => {
-    return env[name] ?? "";
-  });
+  return text.replaceAll(
+    /\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g,
+    (_match, name: string) => {
+      return env[name] ?? "";
+    },
+  );
 }
 
 export async function loadXiaopawConfig(

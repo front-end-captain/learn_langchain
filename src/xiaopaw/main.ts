@@ -29,6 +29,7 @@ type RuntimeAgentFactoryInput = {
   config: XiaopawConfig;
   dataDir: string;
   skillsDir: string;
+  instructionsDir: string;
 };
 
 type RuntimeAgentFactory = (input: RuntimeAgentFactoryInput) => AgentFn;
@@ -208,8 +209,15 @@ export async function buildXiaopawRuntime(
   });
   const downloader = new FeishuDownloader({ client, dataDir });
   const skillsDir = resolveSkillsDir(cwd, config);
+  const instructionsDir = resolveInstructionsDir(cwd, config);
   const agentFactory = options.agentFactory ?? createDefaultAgentFactory();
-  const agentFn = agentFactory({ sender: feishuSender, config, dataDir, skillsDir });
+  const agentFn = agentFactory({
+    sender: feishuSender,
+    config,
+    dataDir,
+    skillsDir,
+    instructionsDir,
+  });
 
   const runner = new Runner({
     sessionManager,
@@ -257,7 +265,13 @@ export async function buildXiaopawRuntime(
 
   if (config.debug.enable_test_api) {
     const captureSender = new CaptureSender();
-    const debugAgentFn = agentFactory({ sender: captureSender, config, dataDir, skillsDir });
+    const debugAgentFn = agentFactory({
+      sender: captureSender,
+      config,
+      dataDir,
+      skillsDir,
+      instructionsDir,
+    });
     const debugRunner = new Runner({
       sessionManager,
       sender: captureSender,
@@ -339,7 +353,7 @@ export function validateRuntimeConfig(
 }
 
 function createDefaultAgentFactory(): RuntimeAgentFactory {
-  return ({ sender, config, dataDir, skillsDir }) => {
+  return ({ sender, config, dataDir, skillsDir, instructionsDir }) => {
     return buildAgentFn({
       sender,
       model: new AliyunQwenChatModel({
@@ -349,6 +363,7 @@ function createDefaultAgentFactory(): RuntimeAgentFactory {
       }),
       maxHistoryTurns: config.session.max_history_turns,
       skillsDir,
+      instructionsDir,
       sandboxMcpUrl: config.sandbox.url,
       sandboxSkillsMount: "/mnt/skills",
       workspaceRoot: config.sandbox.workspace_dir,
@@ -411,6 +426,10 @@ function resolveSkillsDir(cwd: string, config: XiaopawConfig): string {
     return configured;
   }
   return fileURLToPath(new URL("../skills/", import.meta.url));
+}
+
+function resolveInstructionsDir(cwd: string, config: XiaopawConfig): string {
+  return resolve(cwd, config.instructions_dir);
 }
 
 function formatStartupError(error: unknown): string {

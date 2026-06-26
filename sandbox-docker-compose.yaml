@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   aio-sandbox:
     container_name: aio-sandbox

@@ -47,6 +47,8 @@ sender:
   retry_backoff: [1, 2, 4]
 
 data_dir: "./data"
+# 持久化指令存在目录
+instructions_dir: "./data/instructions"
 
 debug:
   enable_test_api: true
