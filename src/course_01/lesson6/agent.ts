@@ -10,7 +10,7 @@ import {
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
 
 import { baiduSearchTool } from "../../tools/baidu-search-tool";
-import { fileReadTool } from "../../tools/file-read-tool";
+import { fileWriterTool } from "../../tools/file-writer-tool";
 import { scrapeWebsiteTool } from "../../tools/scrape-website-tool";
 
 const systemPrompt = `
@@ -57,7 +57,7 @@ export function createTaskMessage() {
 帮我调研极客时间的相关信息，请分析这个研究任务，规划完成研究所需的步骤，并产出一份专业的调研报告。
 
 **重要要求**：
-1. 每次使用搜索工具后，必须从搜索结果中选择最相关的网页链接
+1. 每次使用搜索工具（search_web）后，必须从搜索结果中选择最相关的网页链接
 2. **必须使用网页抓取工具（ScrapeWebsiteTool）**抓取这些网页的完整内容
 3. 不要仅依赖搜索结果中的摘要信息，摘要往往不完整
 4. 对于每个重要信息点，都要有对应的原始网页内容支撑
@@ -92,24 +92,25 @@ export function createTaskMessage() {
 }
 
 const llm = new AliyunQwenChatModel({
-  model: "qwen3.6-plus",
+  model: process.env["QWEN_MODEL"] ?? "",
   apiKey: process.env["QWEN_API_KEY"] ?? "",
   apiBase: process.env["QWEN_API_BASE"] ?? "",
 });
 
 const agent = createAgent({
   model: llm,
-  tools: [baiduSearchTool, fileReadTool, scrapeWebsiteTool],
+  tools: [baiduSearchTool, fileWriterTool, scrapeWebsiteTool],
   systemPrompt: systemPrompt,
 });
 
 export async function run(input: string, onEvent?: AgentStreamEventHandler) {
+  const taskMessage = input.trim() ? input : createTaskMessage();
   const stream = await agent.stream(
     {
       messages: [
         {
           role: "user",
-          content: createTaskMessage(),
+          content: taskMessage,
         },
       ],
     },

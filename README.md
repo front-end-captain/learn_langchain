@@ -97,3 +97,6 @@ curl -X POST http://127.0.0.1:9090/api/test/message \
   -H "Content-Type: application/json" \
   -d '{"routing_key":"p2p:ou_debug","content":"你好，小爪子","sender_id":"ou_debug"}'
 ```
+
+### 备注
+src/course_01/lesson6 -> crewai_mas_demo/m1l2

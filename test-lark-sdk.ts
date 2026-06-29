@@ -1,5 +1,6 @@
 import * as Lark from "@larksuiteoapi/node-sdk";
 
+// @ts-ignore
 const client = new Lark.Client({
   appId: process.env["LARK_APP_ID"],
   appSecret: process.env["LARK_APP_SECRET"],

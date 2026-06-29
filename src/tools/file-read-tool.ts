@@ -1,7 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import * as z from "zod";
 
-export const FILE_READ_TOOL_NAME = "File_Read_Tool";
+export const FILE_READ_TOOL_NAME = "File Read Tool";
 
 function buildFilePathSchema(defaultFilePath?: string) {
   const description = defaultFilePath

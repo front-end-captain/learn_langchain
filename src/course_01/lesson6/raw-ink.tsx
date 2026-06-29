@@ -2,7 +2,7 @@ import path from "node:path";
 import url from "node:url";
 import { render } from "ink";
 
-import { run } from "./agent";
+import { run } from "./raw-agent";
 import { App } from "../../output";
 
 const input = "";
@@ -16,6 +16,6 @@ render(
     run={run}
     logDir={logDir}
     logFormat="both"
-    runName="lesson6"
+    runName="lesson6-raw"
   />,
 );

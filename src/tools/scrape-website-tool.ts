@@ -1,7 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import * as z from "zod";
 
-export const SCRAPE_WEBSITE_TOOL_NAME = "Read_website_content";
+export const SCRAPE_WEBSITE_TOOL_NAME = "Read website content";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_HEADERS: Record<string, string> = {

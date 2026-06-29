@@ -1,0 +1,11 @@
+当前任务：
+{description}
+
+最终答案需要满足：
+{expected_output}
+
+你必须在 Final Answer 中返回实际完整内容，而不是摘要。
+
+Begin!
+
+Thought:
