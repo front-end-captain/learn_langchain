@@ -1,0 +1,38 @@
+[2026-06-30 11:49:12.558] INFO: lesson8_run_start
+    type: "run_start"
+    input: ""
+[2026-06-30 11:49:12.578] INFO: lesson8_stream_event
+    type: "agent_update"
+    messageType: "human"
+    content: "Add 3 and 4"
+[2026-06-30 11:49:16.975] INFO: lesson8_stream_event
+    type: "agent_update"
+    messageType: "ai"
+    content: ""
+[2026-06-30 11:49:16.975] INFO: lesson8_stream_event
+    type: "tool_calls"
+    toolCalls: [
+      {
+        "id": "call_576461f98db94b9f8e62a4ef",
+        "name": "add",
+        "args": {
+          "a": "3",
+          "b": "4"
+        }
+      }
+    ]
+[2026-06-30 11:49:16.977] INFO: lesson8_stream_event
+    type: "agent_update"
+    messageType: "tool"
+    content: "7"
+[2026-06-30 11:49:19.321] INFO: lesson8_stream_event
+    type: "agent_update"
+    messageType: "ai"
+    content: "The sum of 3 and 4 is 7."
+[2026-06-30 11:49:19.321] INFO: lesson8_run_end
+    type: "run_end"
+    status: "success"
+    result: {
+      "type": "ai",
+      "message": "The sum of 3 and 4 is 7."
+    }
