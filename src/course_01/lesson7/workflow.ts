@@ -1,25 +1,33 @@
 import path from "node:path";
 import url from "node:url";
-import {
-  Annotation,
-  END,
-  START,
-  StateGraph,
-  type ProtocolEvent,
-} from "@langchain/langgraph";
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 import { createAgent, ReactAgent } from "langchain";
 import * as z from "zod";
+import {
+  createAgentUpdateEvent,
+  createStructuredResponseEvent,
+  createToolCallsEvent,
+  getToolCalls,
+  normalizeAgentStreamEventForLog,
+} from "../../helper/agent-stream";
 
 import { AliyunQwenChatModel } from "../../llm/aliyun-qwen-chat-model";
 import { baiduSearchTool } from "../../tools/baidu-search-tool";
 import { fileWriterTool } from "../../tools/file-writer-tool";
 import { scrapeWebsiteTool } from "../../tools/scrape-website-tool";
+import { createAgentRunFileLogger } from "../../helper/file-logger";
 
 const DEFAULT_TOPIC = "调研极客时间平台的全面信息";
-const DEFAULT_MODEL = "qwen-plus";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const logDir = path.join(__dirname, "logs");
+
+const fileLogger = createAgentRunFileLogger({
+  logDir: logDir,
+  runName: "lesson7",
+  format: "pretty",
+});
 
 export const ResearchStepSchema = z.object({
   stepNumber: z.number().int().min(1).describe("研究步骤编号。"),
@@ -179,7 +187,7 @@ const editorSystemPrompt = `
 
 function createModel() {
   return new AliyunQwenChatModel({
-    model: process.env["QWEN_MODEL"] ?? DEFAULT_MODEL,
+    model: process.env["QWEN_MODEL"] ?? "",
     apiKey: process.env["QWEN_API_KEY"] ?? "",
     apiBase: process.env["QWEN_API_BASE"] ?? "",
   });
@@ -223,13 +231,14 @@ function createEditorAgent() {
   });
 }
 
-function createPlanTaskMessage(topic: string) {
+function createPlanTaskMessage(topic: string, outputStructName: string) {
   return `
 请规划以下研究任务：
 
 ${topic}
 
 请输出结构化研究计划，包含任务分析、关键信息维度、复杂度评估、3-8 个研究步骤和 Markdown 报告大纲。
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
@@ -237,6 +246,7 @@ function createSearchTaskMessage(
   topic: string,
   plan: ResearchPlan,
   step: ResearchStep,
+  outputStructName: string,
 ) {
   return `
 研究主题：
@@ -249,6 +259,7 @@ ${plan.outlineMarkdown}
 ${JSON.stringify(step, null, 2)}
 
 请围绕当前步骤收集资料，输出结构化搜索结果。每条证据必须包含 summary、quote、url。
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
@@ -256,6 +267,7 @@ function createStepWriteTaskMessage(
   plan: ResearchPlan,
   step: ResearchStep,
   searchResult: SearchResult,
+  outputStructName: string,
 ) {
   return `
 研究计划：
@@ -268,18 +280,28 @@ ${JSON.stringify(step, null, 2)}
 ${JSON.stringify(searchResult, null, 2)}
 
 请撰写该步骤的 Markdown 报告正文，关键事实必须带引用链接。
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
-function createStepReviewTaskMessage(stepReport: StepReport) {
+function createStepReviewTaskMessage(
+  stepReport: StepReport,
+  outputStructName: string,
+) {
   return `
 请审核以下步骤报告，只输出结构化审核意见。
 
 ${stepReport.markdown}
+
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
-function createStepReviseTaskMessage(draft: StepReport, review: ReviewResult) {
+function createStepReviseTaskMessage(
+  draft: StepReport,
+  review: ReviewResult,
+  outputStructName: string,
+) {
   return `
 请根据审核意见修改步骤报告，并输出修改后的 StepReport。
 
@@ -288,6 +310,8 @@ ${JSON.stringify(draft, null, 2)}
 
 审核意见：
 ${JSON.stringify(review, null, 2)}
+
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
@@ -295,6 +319,7 @@ function createFinalIntegrateTaskMessage(
   topic: string,
   plan: ResearchPlan,
   stepReports: StepReport[],
+  outputStructName: string,
 ) {
   return `
 研究主题：
@@ -308,14 +333,21 @@ ${JSON.stringify(stepReports, null, 2)}
 
 请整合为一份完整 Markdown 调研报告，并给出输出文件名。
 输出文件名必须使用：${sanitizeFilename(topic)}-最终报告.md
+
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
-function createFinalReviewTaskMessage(finalDraft: FinalReportDraft) {
+function createFinalReviewTaskMessage(
+  finalDraft: FinalReportDraft,
+  outputStructName: string,
+) {
   return `
 请对以下最终报告进行发布前审核，只输出结构化审核意见。
 
 ${finalDraft.markdown}
+
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
@@ -323,6 +355,7 @@ function createFinalReviseTaskMessage(
   topic: string,
   draft: FinalReportDraft,
   review: ReviewResult,
+  outputStructName: string,
 ) {
   return `
 请根据最终审核意见修改完整报告，并输出最终版 Markdown 和文件名。
@@ -334,6 +367,8 @@ ${draft.markdown}
 
 最终审核意见：
 ${JSON.stringify(review, null, 2)}
+
+最终结果必须符合 ${outputStructName} 结构。
 `.trim();
 }
 
@@ -358,8 +393,26 @@ async function runStructuredAgent<TOutput extends Record<string, unknown>>({
   let structuredResponse: TOutput | undefined;
 
   for await (const chunk of stream) {
+    const lastMessage = chunk.messages.at(-1);
+    fileLogger.writeEvent(
+      normalizeAgentStreamEventForLog(createAgentUpdateEvent(lastMessage)),
+    );
+
+    const toolCalls = getToolCalls(lastMessage);
+    if (toolCalls.length > 0) {
+      fileLogger.writeEvent(
+        normalizeAgentStreamEventForLog(createToolCallsEvent(toolCalls)),
+      );
+    }
+
     if (chunk.structuredResponse) {
       structuredResponse = schema.parse(chunk.structuredResponse);
+
+      fileLogger.writeEvent(
+        normalizeAgentStreamEventForLog(
+          createStructuredResponseEvent(chunk.structuredResponse),
+        ),
+      );
     }
   }
 
@@ -371,9 +424,10 @@ async function runStructuredAgent<TOutput extends Record<string, unknown>>({
 }
 
 async function planNode(state: ReportStateValue) {
+  // console.info("[planNode]", JSON.stringify(state, null, 2));
   const plan = await runStructuredAgent({
     agent: createResearcherAgent(),
-    message: createPlanTaskMessage(state.topic),
+    message: createPlanTaskMessage(state.topic, "ResearchPlanSchema"),
     schema: ResearchPlanSchema,
     outputType: "ResearchPlan",
   });
@@ -386,10 +440,16 @@ async function planNode(state: ReportStateValue) {
 }
 
 async function searchStepNode(state: ReportStateValue) {
+  // console.info("[searchStepNode]", JSON.stringify(state, null, 2));
   const step = getCurrentStep(state);
   const searchResult = await runStructuredAgent({
     agent: createSearcherAgent(),
-    message: createSearchTaskMessage(state.topic, state.plan, step),
+    message: createSearchTaskMessage(
+      state.topic,
+      state.plan,
+      step,
+      "SearchResultSchema",
+    ),
     schema: SearchResultSchema,
     outputType: "SearchResult",
   });
@@ -400,6 +460,7 @@ async function searchStepNode(state: ReportStateValue) {
 }
 
 async function writeStepNode(state: ReportStateValue) {
+  // console.info("[writeStepNode]", JSON.stringify(state, null, 2));
   const step = getCurrentStep(state);
   const stepReport = await runStructuredAgent({
     agent: createWriterAgent(StepReportSchema),
@@ -407,6 +468,7 @@ async function writeStepNode(state: ReportStateValue) {
       state.plan,
       step,
       state.currentSearchResult,
+      "StepReportSchema",
     ),
     schema: StepReportSchema,
     outputType: "StepReport",
@@ -418,9 +480,13 @@ async function writeStepNode(state: ReportStateValue) {
 }
 
 async function reviewStepNode(state: ReportStateValue) {
+  // console.info("[reviewStepNode]", JSON.stringify(state, null, 2));
   const review = await runStructuredAgent({
     agent: createEditorAgent(),
-    message: createStepReviewTaskMessage(state.currentStepDraft),
+    message: createStepReviewTaskMessage(
+      state.currentStepDraft,
+      "ReviewResultSchema",
+    ),
     schema: ReviewResultSchema,
     outputType: "ReviewResult",
   });
@@ -431,11 +497,13 @@ async function reviewStepNode(state: ReportStateValue) {
 }
 
 async function reviseStepNode(state: ReportStateValue) {
+  // console.info("[reviseStepNode]", JSON.stringify(state, null, 2));
   const revisedReport = await runStructuredAgent({
     agent: createWriterAgent(StepReportSchema),
     message: createStepReviseTaskMessage(
       state.currentStepDraft,
       state.currentStepReview,
+      "StepReportSchema",
     ),
     schema: StepReportSchema,
     outputType: "RevisedStepReport",
@@ -448,18 +516,21 @@ async function reviseStepNode(state: ReportStateValue) {
 }
 
 function routeAfterStep(state: ReportStateValue) {
+  console.info("[routeAfterStep]", JSON.stringify(state, null, 2));
   return state.currentStepIndex >= state.steps.length
     ? "integrate_final"
     : "search_step";
 }
 
 async function integrateFinalNode(state: ReportStateValue) {
+  // console.info("[integrateFinalNode]", JSON.stringify(state, null, 2));
   const finalDraft = await runStructuredAgent({
     agent: createWriterAgent(FinalReportDraftSchema),
     message: createFinalIntegrateTaskMessage(
       state.topic,
       state.plan,
       state.completedStepReports,
+      "FinalReportDraftSchema",
     ),
     schema: FinalReportDraftSchema,
     outputType: "FinalReportDraft",
@@ -471,9 +542,13 @@ async function integrateFinalNode(state: ReportStateValue) {
 }
 
 async function reviewFinalNode(state: ReportStateValue) {
+  // console.info("[reviewFinalNode]", JSON.stringify(state, null, 2));
   const finalReview = await runStructuredAgent({
     agent: createEditorAgent(),
-    message: createFinalReviewTaskMessage(state.finalDraft),
+    message: createFinalReviewTaskMessage(
+      state.finalDraft,
+      "ReviewResultSchema",
+    ),
     schema: ReviewResultSchema,
     outputType: "FinalReview",
   });
@@ -484,12 +559,14 @@ async function reviewFinalNode(state: ReportStateValue) {
 }
 
 async function reviseFinalNode(state: ReportStateValue) {
+  // console.info("[reviseFinalNode]", JSON.stringify(state, null, 2));
   const finalDraft = await runStructuredAgent({
     agent: createWriterAgent(FinalReportDraftSchema),
     message: createFinalReviseTaskMessage(
       state.topic,
       state.finalDraft,
       state.finalReview,
+      "FinalReportDraftSchema",
     ),
     schema: FinalReportDraftSchema,
     outputType: "FinalReport",
@@ -511,30 +588,9 @@ async function reviseFinalNode(state: ReportStateValue) {
   };
 }
 
-const statsTransformer = () => {
-  let totalTokens = 0;
-  let resolveTotal!: (value: number) => void;
-  const totalTokensPromise = new Promise<number>((resolve) => {
-    resolveTotal = resolve;
-  });
-
-  return {
-    init: () => ({ totalTokens: totalTokensPromise }),
-    process(event: ProtocolEvent) {
-      const data = (event?.params?.data ?? {}) as any;
-
-      if (event.method === "messages" && data.event === "message-finish") {
-        const metadata = data.responseMetadata ?? {};
-        totalTokens += metadata.tokenUsage.totalTokens ?? metadata.usage.total_tokens;
-      }
-      return true;
-    },
-    finalize: () => resolveTotal(totalTokens),
-  };
-};
 function createGraph() {
   return new StateGraph(ReportState)
-    .addNode("plan", planNode)
+    .addNode("plan_step", planNode)
     .addNode("search_step", searchStepNode)
     .addNode("write_step", writeStepNode)
     .addNode("review_step", reviewStepNode)
@@ -542,8 +598,8 @@ function createGraph() {
     .addNode("integrate_final", integrateFinalNode)
     .addNode("review_final", reviewFinalNode)
     .addNode("revise_final", reviseFinalNode)
-    .addEdge(START, "plan")
-    .addEdge("plan", "search_step")
+    .addEdge(START, "plan_step")
+    .addEdge("plan_step", "search_step")
     .addEdge("search_step", "write_step")
     .addEdge("write_step", "review_step")
     .addEdge("review_step", "revise_step")
@@ -554,11 +610,14 @@ function createGraph() {
     .addEdge("integrate_final", "review_final")
     .addEdge("review_final", "revise_final")
     .addEdge("revise_final", END)
-    .compile({ transformers: [statsTransformer] });
+    .compile();
 }
 
 export async function run(input = ""): Promise<WorkflowResult> {
   const topic = input.trim() || DEFAULT_TOPIC;
+
+  fileLogger.writeRunStart({ input: topic });
+
   const graph = createGraph();
 
   const stream = await graph.streamEvents(
@@ -567,12 +626,8 @@ export async function run(input = ""): Promise<WorkflowResult> {
     },
     { version: "v3" },
   );
-  console.error("totalTokens", await stream.extensions.totalTokens);
 
-  for await (const chunk of stream.values) {
-  }
-
-  const state = await stream.output
+  const state = await stream.output;
   return {
     topic: state.topic,
     plan: state.plan,

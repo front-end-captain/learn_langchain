@@ -1,0 +1,7 @@
+[2026-07-01 04:38:05.993] INFO: lesson7_run_start
+    type: "run_start"
+    input: "调研极客时间平台的全面信息"
+[2026-07-01 04:38:06.018] INFO: lesson7_stream_event
+    type: "agent_update"
+    messageType: "human"
+    content: "请规划以下研究任务：\n\n调研极客时间平台的全面信息\n\n请输出结构化研究计划，包含任务分析、关键信息维度、复杂度评估、3-8 个研究步骤和 Markdown 报告大纲。\n最终结果必须符合 ResearchPlanSchema 结构。"
